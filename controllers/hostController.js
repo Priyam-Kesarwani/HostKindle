@@ -3,7 +3,7 @@ const fs = require("fs");
 
 exports.getAddHome = (req, res, next) => {
   res.render("host/edit-home", {
-    pageTitle: "Add Home to airbnb",
+    pageTitle: "Add Home to HostKindle",
     currentPage: "addHome",
     editing: false,
     isLoggedIn: req.isLoggedIn,
