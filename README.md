@@ -19,22 +19,31 @@
 - ⚙️ **Backend**: Node.js, Express.js
 - 🖼️ **Frontend**: EJS templates, Tailwind CSS
 - 💾 **Database**: MongoDB
-- 🔐 **Authentication**: Express-session / Passport (if used)
+- 🔐 **Authentication**: Express-session 
 
 ---
 
 ## 📁 Project Structure (MVC)
 
 HostKindle/
-├── controllers/ # 💼 Business logic
-├── models/ # 🧠 Data models (User, Listing, Booking)
-├── routes/ # 🌐 API and page routes
-├── views/ # 🖥️ EJS templates
-├── public/ # 🖼️ CSS, images, and JS files
-├── utils/ # 🧰 Helper utilities
-├── app.js # 🚀 Entry point
-├── package.json # 📦 Dependencies
-└── tailwind.config.js # 🎨 Tailwind 
+├── controllers/ # 💼 Business logic  
+
+├── models/ # 🧠 Data models (User, Listing, Booking)  
+
+├── routes/ # 🌐 API and page routes  
+
+├── views/ # 🖥️ EJS templates  
+
+├── public/ # 🖼️ CSS, images, and JS files  
+
+├── utils/ # 🧰 Helper utilities  
+
+├── app.js # 🚀 Entry point  
+
+├── package.json # 📦 Dependencies  
+
+└── tailwind.config.js # 🎨 Tailwind   
+
 
 ## 👤User Roles
 
@@ -47,6 +56,7 @@ HostKindle/
  1. Clone the repository:
     ```bash
    git clone https://github.com/Priyam-Kesarwani/HostKindle.git
+    ```
 
  2. Navigate to the project directory:
    ```bash
