@@ -1,13 +1,15 @@
 // Core Module
 const path = require('path');
 
+require('dotenv').config();
+
 // External Module
 const express = require('express');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
 const { default: mongoose } = require('mongoose');
 const multer = require('multer');
-const DB_PATH = "mongodb+srv://priyamk778:HDgKNaGULZfXdih2@hostkindle.cvbmgds.mongodb.net/?retryWrites=true&w=majority&appName=HostKindle";
+const DB_PATH = process.env.DB_PATH;
 
 //Local Module
 const storeRouter = require("./routes/storeRouter")
@@ -64,10 +66,15 @@ app.use("/host/uploads", express.static(path.join(rootDir, 'uploads')))
 app.use("/homes/uploads", express.static(path.join(rootDir, 'uploads')))
 
 app.use(session({
-  secret: "KnowledgeGate AI with Complete Coding",
+  secret: process.env.SESSION_SECRET,
   resave: false,
-  saveUninitialized: true,
-  store
+  saveUninitialized: false,
+  store,
+  cookie: {
+    secure: true, 
+    httpOnly: true,
+    maxAge: 1000 * 60 * 60 * 24 
+  }
 }));
 
 app.use((req, res, next) => {
@@ -89,7 +96,7 @@ app.use("/host", hostRouter);
 
 app.use(errorsController.pageNotFound);
 
-const PORT = 3003;
+const PORT = process.env.PORT || 3000;
 
 mongoose.connect(DB_PATH).then(() => {
   console.log('Connected to Mongo');
@@ -99,37 +106,4 @@ mongoose.connect(DB_PATH).then(() => {
 }).catch(err => {
   console.log('Error while connecting to Mongo: ', err);
 });
-
-// const express = require('express');
-// const app = express();
-
-// // Basic route
-// app.get('/', (req, res) => {
-//   res.send('Server is working fine!');
-// });
-
-// // Start server
-// const PORT = process.env.PORT || 3000;
-// app.listen(PORT, () => {
-//   console.log(`Server is running on http://localhost:${PORT}`);
-// });
-
-// const express = require('express');
-// const app = express();
-// const path = require('path');
-
-// app.use(express.static(path.join(__dirname, 'public')));
-// // app.use(express.static(path.join(rootDir, 'public')))
-
-// app.set('view engine', 'ejs');
-// app.set('views', 'views');
-
-// app.get('/', (req, res) => {
-//   // res.sendFile(path.join(__dirname, 'views', 'index.html'));
-//    res.render('index');
-// });
-
-// app.listen(3000, () => {
-//   console.log('Server running on http://localhost:3000');
-// });
 
