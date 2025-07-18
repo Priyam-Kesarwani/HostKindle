@@ -94,7 +94,7 @@ const PORT = process.env.PORT || 3000;
 
 mongoose.connect(DB_PATH).then(() => {
   console.log('Connected to Mongo');
-  app.listen(PORT, () => {
+  app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on address http://localhost:${PORT}`);
   });
 }).catch(err => {
