@@ -68,13 +68,7 @@ app.use("/homes/uploads", express.static(path.join(rootDir, 'uploads')))
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
-  saveUninitialized: false,
-  store,
-  cookie: {
-    secure: true, 
-    httpOnly: true,
-    maxAge: 1000 * 60 * 60 * 24 
-  }
+  saveUninitialized: true,
 }));
 
 app.use((req, res, next) => {
