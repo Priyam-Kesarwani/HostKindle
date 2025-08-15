@@ -1,7 +1,6 @@
 # HostKindle 📖
 
 **Live Site:** [https://hostkindle.onrender.com/](https://hostkindle.onrender.com/)  
-**GitHub Repo:** [https://github.com/Priyam-Kesarwani/HostKindle](https://github.com/Priyam-Kesarwani/HostKindle)
 
 ---
 
