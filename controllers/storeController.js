@@ -10,6 +10,8 @@ exports.getIndex = (req, res, next) => {
       currentPage: "index",
       isLoggedIn: req.isLoggedIn, 
       user: req.session.user,
+      searchQuery: null,
+      isSearchResults: false
     });
   });
 };
@@ -84,5 +86,38 @@ exports.getHomeDetails = (req, res, next) => {
         user: req.session.user,
       });
     }
+  });
+};
+
+exports.postSearch = (req, res, next) => {
+  const searchQuery = req.body.search;
+  
+  if (!searchQuery || searchQuery.trim() === '') {
+    return res.redirect('/');
+  }
+
+  // Create a regex pattern for case-insensitive search
+  const searchRegex = new RegExp(searchQuery.trim(), 'i');
+  
+  // Search in houseName, location, and description
+  Home.find({
+    $or: [
+      { houseName: searchRegex },
+      { location: searchRegex },
+      { description: searchRegex }
+    ]
+  }).then((searchResults) => {
+    res.render("store/index", {
+      registeredHomes: searchResults,
+      pageTitle: "Search Results - HostKindle",
+      currentPage: "index",
+      isLoggedIn: req.isLoggedIn, 
+      user: req.session.user,
+      searchQuery: searchQuery,
+      isSearchResults: true
+    });
+  }).catch((error) => {
+    console.log("Search error:", error);
+    res.redirect('/');
   });
 };

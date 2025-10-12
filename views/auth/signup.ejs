@@ -2,10 +2,10 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   </head>
 
-  <body class="bg-gray-100">
+  <body class="text-white bg-[#1A1A2E] min-h-screen">
     <%- include('../partials/nav') %>
-      <main class="container mx-auto mt-8 p-8 bg-white rounded-lg shadow-md max-w-2xl">
-        <h1 class="text-3xl font-bold mb-6 text-center text-gray-800 border-b pb-4">Create Your Account</h1>
+      <main class="container mx-auto mt-8 p-8 bg-gray-800 rounded-lg shadow-lg max-w-2xl">
+        <h1 class="text-3xl font-bold mb-6 text-center text-white border-b border-gray-600 pb-4">Create Your Account</h1>
 
         <form action="/signup" method="POST" class="max-w-md mx-auto">
 
@@ -13,83 +13,83 @@
             <!-- Name fields in a flex layout -->
             <div class="flex gap-4 mb-4">
               <div class="flex-1">
-                <label for="firstName" class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                <label for="firstName" class="block text-sm font-medium text-gray-300 mb-1">First Name</label>
                 <div class="relative">
-                  <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                  <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                     <i class="fas fa-user"></i>
                   </span>
                   <input type="text" id="firstName" name="firstName" placeholder="John"
                     value="<%= oldInput.firstName ? oldInput.firstName : '' %>"
-                    class="w-full pl-10 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition"
+                    class="w-full pl-10 px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition"
                     required />
                 </div>
               </div>
 
               <div class="flex-1">
-                <label for="lastName" class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                <label for="lastName" class="block text-sm font-medium text-gray-300 mb-1">Last Name</label>
                 <div class="relative">
-                  <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                  <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                     <i class="fas fa-user"></i>
                   </span>
                   <input type="text" id="lastName" name="lastName"
                     value="<%= oldInput.lastName ? oldInput.lastName : '' %>" placeholder="Doe"
-                    class="w-full pl-10 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition" />
+                    class="w-full pl-10 px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition" />
                 </div>
               </div>
             </div>
 
             <!-- Email field -->
             <div class="mb-4">
-              <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+              <label for="email" class="block text-sm font-medium text-gray-300 mb-1">Email Address</label>
               <div class="relative">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                   <i class="fas fa-envelope"></i>
                 </span>
                 <input type="email" id="email" name="email" value="<%= oldInput.email ? oldInput.email : '' %>"
                   placeholder="your.email@example.com"
-                  class="w-full pl-10 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition"
+                  class="w-full pl-10 px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition"
                   required />
               </div>
             </div>
 
             <!-- Password fields -->
             <div class="mb-4">
-              <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+              <label for="password" class="block text-sm font-medium text-gray-300 mb-1">Password</label>
               <div class="relative">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                   <i class="fas fa-lock"></i>
                 </span>
                 <input type="password" id="password" name="password" placeholder="Enter Your Password"
-                  class="w-full pl-10 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition"
+                  class="w-full pl-10 px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition"
                   required />
               </div>
             </div>
 
             <div class="mb-5">
-              <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+              <label for="confirmPassword" class="block text-sm font-medium text-gray-300 mb-1">Confirm Password</label>
               <div class="relative">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                   <i class="fas fa-lock"></i>
                 </span>
                 <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Your Password"
-                  class="w-full pl-10 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition"
+                  class="w-full pl-10 px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition"
                   required />
               </div>
             </div>
 
             <!-- User type selection with better styling -->
-            <div class="mb-5 p-4 bg-gray-50 rounded-md border border-gray-200">
-              <p class="text-sm font-medium text-gray-700 mb-2">I want to register as:</p>
+            <div class="mb-5 p-4 bg-gray-700 rounded-md border border-gray-600">
+              <p class="text-sm font-medium text-gray-300 mb-2">I want to register as:</p>
               <div class="flex space-x-6">
                 <label class="inline-flex items-center cursor-pointer">
                   <input type="radio" name="userType" value="guest" id="guest"
-                    class="form-radio text-red-500 focus:ring-red-500" checked="<% oldInput.userType === " guest"%>" />
-                  <span class="ml-2">Guest</span>
+                    class="form-radio text-violet-500 focus:ring-violet-500" checked="<% oldInput.userType === " guest"%>" />
+                  <span class="ml-2 text-gray-300">Guest</span>
                 </label>
                 <label class="inline-flex items-center cursor-pointer">
                   <input type="radio" name="userType" value="host" id="host"
-                    class="form-radio text-red-500 focus:ring-red-500" checked="<% oldInput.userType === " host"%>"/>
-                  <span class="ml-2">Host</span>
+                    class="form-radio text-violet-500 focus:ring-violet-500" checked="<% oldInput.userType === " host"%>"/>
+                  <span class="ml-2 text-gray-300">Host</span>
                 </label>
               </div>
             </div>
@@ -97,23 +97,23 @@
             <!-- Terms and conditions -->
             <div class="mb-6">
               <label class="inline-flex items-center cursor-pointer">
-                <input type="checkbox" name="terms" id="terms" class="form-checkbox text-red-500 focus:ring-red-500"
+                <input type="checkbox" name="terms" id="terms" class="form-checkbox text-violet-500 focus:ring-violet-500"
                   required />
-                <span class="ml-2 text-gray-700">I agree to the <a href="#" class="text-red-500 hover:underline">terms
+                <span class="ml-2 text-gray-300">I agree to the <a href="#" class="text-violet-400 hover:underline">terms
                     and conditions</a></span>
               </label>
             </div>
 
             <!-- Submit button with animation -->
             <button type="submit"
-              class="w-full bg-[#2b84ea] text-white py-3 rounded-md hover:bg-[#2b84ea]/90 focus:ring-4 focus:ring-[#2b84ea]/50 font-medium transition duration-300 flex items-center justify-center">
+              class="w-full bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white py-3 rounded-md focus:ring-4 focus:ring-violet-500/50 font-medium transition-all duration-300 flex items-center justify-center shadow-violet-500/25">
               <span>Register</span>
               <i class="fas fa-arrow-right ml-2"></i>
             </button>
 
             <!-- Login link -->
-            <p class="text-center mt-4 text-gray-600">
-              Already have an account? <a href="/login" class="text-red-500 hover:underline">Log in</a>
+            <p class="text-center mt-4 text-gray-300">
+              Already have an account? <a href="/login" class="text-violet-400 hover:underline">Log in</a>
             </p>
         </form>
       </main>

@@ -9,6 +9,7 @@ storeRouter.get("/", storeController.getIndex);
 storeRouter.get("/homes", storeController.getHomes);
 storeRouter.get("/bookings", storeController.getBookings);
 storeRouter.get("/favourites", storeController.getFavouriteList);
+storeRouter.post("/search", storeController.postSearch);
 
 storeRouter.get("/homes/:homeId", storeController.getHomeDetails);
 storeRouter.post("/favourites", storeController.postAddToFavourite);
