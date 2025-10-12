@@ -1,14 +1,12 @@
 # HostKindle 📖
 
 **Live Site:** [https://hostkindle.onrender.com/](https://hostkindle.onrender.com/)  
-**GitHub Repo:** [https://github.com/Priyam-Kesarwani/HostKindle](https://github.com/Priyam-Kesarwani/HostKindle)
 
 ---
 
 ## Overview
 
-**HostKindle** is a full-stack web application built with **Node.js**, **Express.js**, **MongoDB**, and **EJS** that allows users to upload, manage, and share digital content like books and resources.  
-It focuses on seamless hosting and easy access for readers and creators.
+**HostKindle** is a full-stack web application built with **Node.js**, **Express.js**, **MongoDB**, and **EJS** that allows users to upload and book houses. It focuses on seamless hosting and easy access for guest and host.
 
 ---
 
