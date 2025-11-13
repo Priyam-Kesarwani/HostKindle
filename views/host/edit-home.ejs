@@ -1,47 +1,97 @@
 <%- include('../partials/head') %>
+  <!-- Latest Font Awesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   </head>
-  <body class="">
+  <body class="text-white bg-[#1A1A2E] min-h-screen">
     <%- include('../partials/nav') %>
-    <main class="container mx-auto mt-8 p-8 bg-white rounded-lg shadow-md">
-      <h1 class="text-3xl font-bold mb-6 text-center text-gray-800"><%= editing ? "Edit" : "Register"%> Your Home on HostKindle</h1>
-      <form action="/host/<%= editing ? "edit-home" : "add-home"%>" method="POST" enctype="multipart/form-data" class="max-w-md mx-auto">
+    <main class="container mx-auto px-4 py-10 max-w-3xl">
+      <h1 class="text-3xl md:text-4xl text-center mt-1 mb-8 tracking-wide font-bold text-white"><%= editing ? "Edit" : "Register"%> Your Home</h1>
+      <form action="/host/<%= editing ? "edit-home" : "add-home"%>" method="POST" enctype="multipart/form-data" class="bg-gray-800 rounded-lg shadow-lg p-6 space-y-4">
         <input type="hidden" name="id" value="<%= editing ? home._id : ''%>" />
-        <input
-          type="text"
-          name="houseName"
-          value="<%= editing ? home.houseName : ''%>"
-          placeholder="Enter your House Name"
-          class="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"/>
-        <input
-          type="text"
-          name="price"
-          value="<%= editing ? home.price : ''%>"
-          placeholder="Price Per Night"
-          class="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"/>
-        <input
-          type="text"
-          name="location"
-          value="<%= editing ? home.location : ''%>"
-          placeholder="Location"
-          class="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"/>
-        <input
-          type="text"
-          name="rating"
-          value="<%= editing ? home.rating : ''%>"
-          placeholder="Rating"
-          class="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"/>
-        <input
-          type="file"
-          name="photo"
-          accept="image/jpg, image/jpeg, image/png"
-          class="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"/>
-        <textarea
-          name="description"
-          placeholder="Describe your home"
-          class="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"><%= editing ? home.description : ''%></textarea>
-      <input type="submit" value="<%= editing ? 'Update Home' : 'Add Home' %>" 
-  class="w-full bg-[#2b84ea] text-white py-2 rounded-md hover:bg-[#2b84ea]/90 focus:ring-4 focus:ring-[#2b84ea]/50 font-semibold transition duration-300 shadow-md" />
-
+        <div>
+          <label for="houseName" class="block text-sm font-medium text-gray-300 mb-1">House Name</label>
+          <input
+            id="houseName"
+            type="text"
+            name="houseName"
+            value="<%= editing ? home.houseName : ''%>"
+            placeholder="Enter your House Name"
+            class="w-full px-4 py-2 bg-gray-900/60 border border-gray-700 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+          />
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+          <label for="price" class="block text-sm font-medium text-gray-300 mb-1">Price Per Month (Rs)</label>
+            <input
+              id="price"
+              type="text"
+              name="price"
+              value="<%= editing ? home.price : ''%>"
+              placeholder="e.g. 2500"
+              class="w-full px-4 py-2 bg-gray-900/60 border border-gray-700 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label for="location" class="block text-sm font-medium text-gray-300 mb-1">Location</label>
+            <input
+              id="location"
+              type="text"
+              name="location"
+              value="<%= editing ? home.location : ''%>"
+              placeholder="City, Country"
+              class="w-full px-4 py-2 bg-gray-900/60 border border-gray-700 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+            />
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label for="rating" class="block text-sm font-medium text-gray-300 mb-1">Rating</label>
+            <input
+              id="rating"
+              type="text"
+              name="rating"
+              value="<%= editing ? home.rating : ''%>"
+              placeholder="e.g. 4.7"
+              class="w-full px-4 py-2 bg-gray-900/60 border border-gray-700 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label for="photo" class="block text-sm font-medium text-gray-300 mb-1">Photo</label>
+            <input
+              id="photo"
+              type="file"
+              name="photo"
+              accept="image/jpg, image/jpeg, image/png"
+              class="w-full px-4 py-2 bg-gray-900/60 border border-gray-700 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+            />
+          </div>
+        </div>
+        <div>
+          <label for="description" class="block text-sm font-medium text-gray-300 mb-1">Description</label>
+          <textarea
+            id="description"
+            name="description"
+            placeholder="Describe your home"
+            rows="5"
+            class="w-full px-4 py-2 bg-gray-900/60 border border-gray-700 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"><%= editing ? home.description : ''%></textarea>
+        </div>
+        <div class="flex items-center">
+          <input
+            type="checkbox"
+            id="furnished"
+            name="furnished"
+            <%= editing && home.furnished ? 'checked' : '' %>
+            class="w-4 h-4 text-violet-600 bg-gray-700 border-gray-600 rounded focus:ring-violet-500 focus:ring-2"
+          />
+          <label for="furnished" class="ml-2 text-sm font-medium text-gray-300">
+            Furnished
+          </label>
+        </div>
+        <div class="flex gap-3 pt-2">
+          <a href="/host/host-home-list" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-2 rounded-md font-semibold transition-all duration-300 text-center">Cancel</a>
+          <input type="submit" value="<%= editing ? 'Update Home' : 'Add Home' %>"
+            class="flex-1 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white py-2 rounded-md font-semibold transition-all duration-300 hover:shadow-lg shadow-violet-500/25 cursor-pointer" />
+        </div>
       </form>
     </main>
   </body>

@@ -23,10 +23,15 @@
               <span class="text-xs"><%= home.location %></span>
             </div>
 
+            <div class="flex items-center text-gray-300">
+              <i class="fas fa-<%= home.furnished ? 'check-circle' : 'times-circle' %> mr-2 text-xs <%= home.furnished ? 'text-green-400' : 'text-gray-500' %>"></i>
+              <span class="text-xs"><%= home.furnished ? 'Furnished' : 'Not Furnished' %></span>
+            </div>
+
             <p class="text-gray-400 text-xs line-clamp-2"><%= home.description %></p>
 
             <div class="flex justify-between items-center">
-              <span class="text-base font-bold text-violet-400">Rs <%= home.price %> / night</span>
+              <span class="text-base font-bold text-violet-400">Rs <%= home.price %> / month</span>
 
               <div class="flex items-center text-yellow-500">
                 <i class="fas fa-star mr-1 text-xs"></i>

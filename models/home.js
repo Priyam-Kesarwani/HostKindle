@@ -19,6 +19,10 @@ const homeSchema = mongoose.Schema({
   },
   photo: String,
   description: String,
+  furnished: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 // homeSchema.pre('findOneAndDelete', async function(next) {

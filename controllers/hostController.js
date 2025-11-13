@@ -46,8 +46,8 @@ exports.getHostHomes = (req, res, next) => {
 };
 
 exports.postAddHome = (req, res, next) => {
-  const { houseName, price, location, rating, description } = req.body;
-  console.log(houseName, price, location, rating, description);
+  const { houseName, price, location, rating, description, furnished } = req.body;
+  console.log(houseName, price, location, rating, description, furnished);
   console.log(req.file);
 
   if (!req.file) {
@@ -63,6 +63,7 @@ exports.postAddHome = (req, res, next) => {
     rating,
     photo,
     description,
+    furnished: furnished === 'on' || furnished === true,
   });
   home.save().then(() => {
     console.log("Home Saved successfully");
@@ -72,7 +73,7 @@ exports.postAddHome = (req, res, next) => {
 };
 
 exports.postEditHome = (req, res, next) => {
-  const { id, houseName, price, location, rating, description } =
+  const { id, houseName, price, location, rating, description, furnished } =
     req.body;;
   Home.findById(id)
     .then((home) => {
@@ -81,6 +82,7 @@ exports.postEditHome = (req, res, next) => {
       home.location = location;
       home.rating = rating;
       home.description = description;
+      home.furnished = furnished === 'on' || furnished === true;
 
       if (req.file) {
         fs.unlink(home.photo, (err) => {
