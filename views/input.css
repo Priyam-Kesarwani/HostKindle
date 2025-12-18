@@ -1,1 +1,91 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Calistoga&family=Outfit:wght@300;400;500;600;700&display=swap');
+
+@theme {
+  --color-primary: hsl(var(--primary));
+  --color-secondary: hsl(var(--secondary));
+  --color-accent: hsl(var(--accent));
+  --color-neutral: hsl(var(--neutral));
+  --color-base-100: hsl(var(--base-100));
+  --color-base-200: hsl(var(--base-200));
+  --color-base-content: hsl(var(--base-content));
+  
+  --font-sans: "Outfit", sans-serif;
+  --font-display: "Calistoga", serif;
+  
+  --animate-fade-in: fadeIn 0.5s ease-out forwards;
+  --animate-slide-up: slideUp 0.5s ease-out forwards;
+  --animate-float: float 3s ease-in-out infinite;
+
+  @keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+  @keyframes slideUp {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+}
+
+/* Default = DARK theme palette (JS toggles light via data-theme="light") */
+:root {
+  --primary: 260 100% 65%; /* Vibrant Purple */
+  --secondary: 320 100% 70%; /* Soft Pink */
+  --accent: 180 100% 40%; /* Teal */
+  --neutral: 220 12% 12%; /* Dark Grey */
+  --base-100: 220 14% 6%; /* Dark background (body) */
+  --base-200: 220 14% 10%; /* Slightly lighter panel */
+  --base-content: 220 20% 98%; /* Light text */
+}
+
+/* Light theme overrides (applied when root has data-theme="light") */
+:root[data-theme="light"] {
+  --primary: 260 100% 65%; /* Vibrant Purple */
+  --secondary: 320 100% 70%; /* Soft Pink */
+  --accent: 180 100% 40%; /* Teal */
+  --neutral: 220 15% 20%; /* Light neutral */
+  --base-100: 220 20% 98%; /* Lightest Grey/White */
+  --base-200: 220 20% 94%; /* Light Grey */
+  --base-content: 220 20% 10%; /* Dark text */
+}
+
+/* Map a few commonly used utility classes to the semantic variables so templates using legacy classes keep working */
+:root[data-theme="light"] .text-white { color: hsl(var(--base-content)) !important; }
+:root[data-theme="light"] .bg-white\/5 { background-color: rgba(255,255,255,0.05) !important; }
+:root[data-theme="light"] .bg-white\/10 { background-color: rgba(255,255,255,0.10) !important; }
+:root[data-theme="light"] .bg-black\/40 { background-color: rgba(0,0,0,0.12) !important; }
+:root[data-theme="light"] .border-white\/10 { border-color: rgba(255,255,255,0.10) !important; }
+:root[data-theme="light"] .placeholder-gray-500 { color: rgba(107,114,128,1) !important; }
+
+/* Make selection readable in both themes */
+::selection { background-color: hsl(var(--primary)); color: white; }
+
+/* Glassmorphism Utilities */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.glass-dark {
+  background: rgba(30, 30, 40, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background-color: hsl(var(--base-100));
+  color: hsl(var(--base-content));
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Calistoga', serif;
+}

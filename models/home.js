@@ -1,6 +1,11 @@
 const mongoose = require("mongoose");
 
 const homeSchema = mongoose.Schema({
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
   houseName: {
     type: String,
     required: true,
@@ -15,13 +20,30 @@ const homeSchema = mongoose.Schema({
   },
   rating: {
     type: Number,
-    required: true,
+    default: 0,
   },
-  photo: String,
+  ratingCount: {
+    type: Number,
+    default: 0,
+  },
+  photo: String, // Keep for backward compatibility
+  photos: [String], // Array of photo paths for multiple photos
   description: String,
   furnished: {
-    type: Boolean,
-    default: false,
+    type: String,
+    enum: ['Unfurnished', 'Semi Furnished', 'Fully Furnished'],
+    default: 'Unfurnished',
+  },
+  bhk: {
+    type: String,
+    enum: ['1 BHK', '2 BHK', '3 BHK'],
+  },
+  feedbackSummary: {
+    type: String,
+  },
+  keywords: {
+    type: [String],
+    default: [],
   },
 });
 

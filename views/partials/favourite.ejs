@@ -1,6 +1,20 @@
-<form action="/favourites" method="POST">
-  <button type="submit" class="bg-green-500 p-2 hover:bg-green-600 w-full rounded-md text-white">
-    Add to Favourite
-  </button>
-  <input type="hidden" name="id" value="<%= home._id %>" />
-</form>
+<% const isFav=(typeof user !=='undefined' && Array.isArray(user.favourites) && user.favourites.some(f=> String(f) ===
+  String(home._id)));
+  %>
+
+  <% if (typeof isLoggedIn !=='undefined' && isLoggedIn) { %>
+    <form action="/favourites/toggle" method="POST" class="absolute top-3 right-3 js-fav-form"
+      data-homeid="<%= home._id %>">
+      <input type="hidden" name="id" value="<%= home._id %>" />
+      <button type="submit" aria-label="<%= isFav ? 'Remove favourite' : 'Add to favourite' %>"
+        class="js-fav-btn <%= isFav ? 'text-red-500' : 'text-white/70 hover:text-white' %> drop-shadow-lg transition-transform duration-200 hover:scale-110 p-1">
+        <i class="<%= isFav ? 'fas' : 'far' %> fa-heart text-2xl"></i>
+      </button>
+    </form>
+    <% } else { %>
+      <a href="/login"
+        class="absolute top-3 right-3 text-white/70 hover:text-white drop-shadow-lg transition-transform duration-200 hover:scale-110 p-1"
+        aria-label="Login to favourite">
+        <i class="far fa-heart text-2xl"></i>
+      </a>
+      <% } %>

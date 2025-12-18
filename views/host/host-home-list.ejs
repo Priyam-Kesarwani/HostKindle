@@ -1,65 +1,117 @@
 <%- include('../partials/head') %>
-<!-- Latest Font Awesome CDN -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-</head>
+  </head>
 
-<body class="text-white bg-[#1A1A2E] min-h-screen">
-  <%- include('../partials/nav') %>
+  <body class="bg-base-100 text-base-content min-h-screen flex flex-col font-sans selection:bg-primary selection:text-white">
+    <%- include('../partials/nav') %>
 
-  <main class="container mx-auto px-4 py-10 max-w-6xl">
-    <div class="flex items-center justify-center mb-6">
-      <h2 class="text-center text-3xl md:text-4xl lg:text-5xl tracking-wide font-bold text-white">
-        Hey Host! Here are your Homes
-      </h2>
-    </div>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-      <% registeredHomes.forEach(home => { %>
-        <div class="bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-xl hover:-translate-y-2 transition-all duration-300 cursor-pointer max-w-sm">
-
-          <img src="<%= home.photo %>" alt="<%= home.houseName %>" class="w-full h-40 object-cover">
-
-          <div class="p-3 space-y-2">
-            <h3 class="text-lg font-bold text-white">
-              <%= home.houseName %>
-            </h3>
-
-            <div class="flex items-center text-gray-300">
-              <i class="fas fa-map-marker-alt mr-2 text-xs"></i>
-              <span class="text-xs"><%= home.location %></span>
-            </div>
-
-            <div class="flex items-center text-gray-300">
-              <i class="fas fa-<%= home.furnished ? 'check-circle' : 'times-circle' %> mr-2 text-xs <%= home.furnished ? 'text-green-400' : 'text-gray-500' %>"></i>
-              <span class="text-xs"><%= home.furnished ? 'Furnished' : 'Not Furnished' %></span>
-            </div>
-
-            <p class="text-gray-400 text-xs line-clamp-2"><%= home.description %></p>
-
-            <div class="flex justify-between items-center">
-              <span class="text-base font-bold text-violet-400">Rs <%= home.price %> / month</span>
-
-              <div class="flex items-center text-yellow-500">
-                <i class="fas fa-star mr-1 text-xs"></i>
-                <span class="text-xs font-medium"><%= home.rating %></span>
-              </div>
-            </div>
-
-            <div class="flex gap-2 pt-1">
-              <a href="/host/edit-home/<%= home._id %>?editing=true" class="flex-1 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white py-2 rounded-md text-center font-semibold transition-all duration-300 shadow-violet-500/25 text-sm">
-                Edit
-              </a>
-
-              <form action="/host/delete-home/<%= home._id %>" method="POST" class="flex-1">
-                <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-md font-semibold transition-all duration-300 text-sm">
-                  Delete
-                </button>
-              </form>
-            </div>
+      <main class="container mx-auto px-4 py-16 max-w-7xl animate-fade-in">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-12">
+          <div class="text-center md:text-left mb-6 md:mb-0">
+            <h1 class="text-4xl md:text-5xl font-display font-bold text-white mb-2">My Listings</h1>
+            <p class="text-gray-400">Manage and update your properties</p>
+          </div>
+          <div>
+            <a href="/host/add-home"
+              class="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-primary/25 transition-all hover:scale-105 active:scale-95">
+              <i class="fas fa-plus"></i> List New Home
+            </a>
           </div>
         </div>
-      <% }) %>
-    </div>
-  </main>
-</body>
-</html>
+
+        <% if (registeredHomes.length===0) { %>
+          <div
+            class="flex flex-col items-center justify-center py-20 bg-neutral-900/30 border border-white/5 rounded-3xl">
+            <div class="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-6">
+              <i class="fas fa-home text-4xl text-gray-600"></i>
+            </div>
+            <h3 class="text-2xl font-semibold text-white mb-2">No properties listed yet</h3>
+            <p class="text-gray-400 mb-8 max-w-md text-center">Start your hosting journey by adding your first property.
+            </p>
+            <a href="/host/add-home"
+              class="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium transition-colors border border-white/5">
+              create your first listing
+            </a>
+          </div>
+          <% } else { %>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              <% registeredHomes.forEach((home, index)=> { %>
+                <div
+                  class="group bg-neutral-900/50 backdrop-blur-sm border border-white/5 rounded-2xl overflow-hidden hover:border-primary/30 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/5 cursor-pointer flex flex-col h-full animate-slide-up"
+                  style="animation-delay: <%= index * 100 %>ms;"
+                  onclick="window.location.href='/homes/<%= home._id %>'">
+                  <% let photos=[]; if (home.photos && Array.isArray(home.photos) && home.photos.length> 0) {
+                    photos = home.photos.filter(p => p && typeof p === 'string' && p.trim() !== '');
+                    } else if (home.photo && typeof home.photo === 'string' && home.photo.trim() !== '') {
+                    photos = [home.photo];
+                    }
+                    photos = photos.map(p => (/^https?:\/\//i.test(p) ? p : (p.startsWith('/') ? p : '/' + p)));
+                    const mainPhoto = photos.length > 0 ? photos[0] : '/uploads/default.jpg';
+                    %>
+                    <div class="relative w-full aspect-[4/3] overflow-hidden">
+                      <img src="<%= mainPhoto %>" alt="<%= home.houseName %>"
+                        class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                      <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+
+                      <div class="absolute top-3 right-3 flex gap-2">
+                        <a href="/host/edit-home/<%= home._id %>?editing=true"
+                          class="bg-white/10 hover:bg-white/20 backdrop-blur p-2 rounded-lg text-white transition-colors"
+                          onclick="event.stopPropagation()" title="Edit">
+                          <i class="fas fa-edit"></i>
+                        </a>
+                        <form action="/host/delete-home/<%= home._id %>" method="POST" onclick="event.stopPropagation()"
+                          onsubmit="return confirm('Delete this home permanently?');">
+                          <button type="submit"
+                            class="bg-red-500/20 hover:bg-red-500/40 backdrop-blur p-2 rounded-lg text-red-500 transition-colors"
+                            title="Delete">
+                            <i class="fas fa-trash-alt"></i>
+                          </button>
+                        </form>
+                      </div>
+
+                      <div class="absolute bottom-3 left-3 right-3">
+                        <h3 class="text-white font-bold leading-tight truncate mb-1">
+                          <%= home.houseName %>
+                        </h3>
+                        <div class="flex justify-between items-end">
+                          <p class="text-gray-300 text-xs"><i class="fas fa-map-marker-alt mr-1"></i>
+                            <%= home.location %>
+                          </p>
+                          <div
+                            class="flex items-center text-yellow-500 text-xs font-bold bg-black/30 px-2 py-1 rounded-lg backdrop-blur-md">
+                            <i class="fas fa-star mr-1"></i>
+                            <%= (home.rating || 0).toFixed(1) %>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="p-4 flex flex-col flex-grow">
+                      <div class="grid grid-cols-2 gap-2 text-xs text-gray-400 mb-4">
+                        <div class="flex items-center gap-2 bg-white/5 p-2 rounded-lg">
+                          <i class="fas fa-rupee-sign text-primary"></i>
+                          <span class="text-white font-medium">
+                            <%= home.price %>
+                          </span>/mo
+                        </div>
+                        <div class="flex items-center gap-2 bg-white/5 p-2 rounded-lg truncate">
+                          <i class="fas fa-couch text-secondary"></i>
+                          <span class="truncate">
+                            <%= typeof home.furnished==='string' ? home.furnished : (home.furnished ? 'Furnished'
+                              : 'Unfurnished' ) %>
+                          </span>
+                        </div>
+                      </div>
+
+                      <a href="/homes/<%= home._id %>"
+                        class="mt-auto w-full block text-center py-2 rounded-lg border border-white/10 text-gray-300 hover:bg-white/5 hover:text-white transition-colors text-sm font-medium">
+                        View Details
+                      </a>
+                    </div>
+                </div>
+                <% }) %>
+            </div>
+            <% } %>
+      </main>
+  </body>
+
+  </html>

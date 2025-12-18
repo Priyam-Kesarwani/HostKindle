@@ -1,169 +1,117 @@
-<header class="bg-[#1A1A2E] text-white p-4 shadow-md sticky top-0 z-10">
+<header
+  class="bg-neutral/80 text-base-content p-4 sticky top-0 z-50 glass-dark transition-all duration-300 backdrop-blur-md border-b border-white/10">
   <nav class="container mx-auto">
     <!-- Desktop Navigation -->
-    <div class="hidden md:flex md:justify-between md:items-center">
+    <div class="flex justify-between items-center">
       <!-- Logo -->
-      <div class="flex items-center">
-        <a href="/" class="flex items-center text-white hover:text-gray-300 transition-colors">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            class="w-8 h-8 mr-2 text-violet-400"
-          >
-            <path
-              d="M11.47 3.84a.75.75 0 011.06 0l8.69 8.69a.75.75 0 101.06-1.06l-8.689-8.69a2.25 2.25 0 00-3.182 0l-8.69 8.69a.75.75 0 001.061 1.06l8.69-8.69z"
-            />
-            <path
-              d="M12 5.432l8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 01-.75-.75v-4.5a.75.75 0 00-.75-.75h-3a.75.75 0 00-.75.75V21a.75.75 0 01-.75.75H5.625a1.875 1.875 0 01-1.875-1.875v-6.198a2.29 2.29 0 00.091-.086L12 5.43z"
-            />
-          </svg>
-          <span class="text-xl font-bold">HostKindle</span>
-        </a>
+      <a href="/" class="flex items-center group">
+        <div
+          class="relative w-10 h-10 mr-3 flex items-center justify-center bg-gradient-to-br from-primary to-accent rounded-xl shadow-lg group-hover:shadow-primary/50 transition-all duration-300">
+          <i class="fas fa-home text-white text-lg"></i>
+        </div>
+        <span class="text-2xl font-display font-bold text-base-content">HostKindle</span>
+      </a>
+
+      <!-- Desktop Menu -->
+      <div class="hidden md:flex items-center space-x-8">
+        <% if (isLoggedIn) { %>
+          <% if (user && user.userType==='guest' ) { %>
+            <a href="/homes"
+              class="nav-link text-gray-300 hover:text-primary font-medium transition-colors relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-primary after:transition-all hover:after:w-full">Homes</a>
+            <a href="/favourites"
+              class="nav-link text-gray-300 hover:text-primary font-medium transition-colors relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-primary after:transition-all hover:after:w-full">Favourites</a>
+            <a href="/bookings"
+              class="nav-link text-gray-300 hover:text-primary font-medium transition-colors relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-primary after:transition-all hover:after:w-full">Bookings</a>
+            <% } else { %>
+              <a href="/host/host-home-list"
+                class="nav-link text-gray-300 hover:text-secondary font-medium transition-colors relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-secondary after:transition-all hover:after:w-full">Host
+                Homes</a>
+              <a href="/host/add-home"
+                class="nav-link text-gray-300 hover:text-secondary font-medium transition-colors relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-secondary after:transition-all hover:after:w-full">Add
+                Home</a>
+              <% } %>
+                <% } %>
+
+                  <div class="flex items-center gap-4 border-l border-gray-700 pl-6">
+
+                    <% if (!isLoggedIn) { %>
+                      <a href="/login" class="text-gray-300 hover:text-white font-medium transition-colors">Login</a>
+                      <a href="/signup"
+                        class="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white px-5 py-2.5 rounded-xl font-semibold shadow-lg shadow-primary/25 transition-all hover:scale-105 active:scale-95">Sign
+                        Up</a>
+                      <% } else { %>
+                        <div class="relative group">
+                          <button class="flex items-center space-x-2 text-gray-300 hover:text-white focus:outline-none">
+                            <div
+                              class="w-8 h-8 rounded-full bg-gradient-to-tr from-gray-700 to-gray-600 flex items-center justify-center border border-gray-500">
+                              <span class="font-bold text-sm">
+                                <%= user.firstName.charAt(0) %>
+                              </span>
+                            </div>
+                          </button>
+                          <!-- Dropdown -->
+                          <div
+                            class="absolute right-0 mt-2 w-48 bg-neutral rounded-xl shadow-xl border border-gray-700 overflow-hidden transform origin-top-right scale-0 group-hover:scale-100 transition-transform duration-200">
+                            <div class="px-4 py-3 border-b border-gray-700">
+                              <p class="text-sm text-white font-semibold">
+                                <%= user.firstName %>
+                              </p>
+                              <p class="text-xs text-gray-400 truncate">
+                                <%= user.email %>
+                              </p>
+                            </div>
+                            <form action="/logout" method="POST">
+                              <button type="submit"
+                                class="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-gray-700 hover:text-red-300 transition-colors">
+                                <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                              </button>
+                            </form>
+                          </div>
+                        </div>
+                        <% } %>
+                  </div>
       </div>
 
-      <!-- Navigation Links (only show when logged in) -->
-      <% if (isLoggedIn) { %>
-      <ul class="flex items-center gap-4">
-        <% if (user && user.userType === 'guest') { %>
-          <li>
-            <a href="/homes" class="text-white hover:text-gray-300 hover:bg-gray-700 py-2 px-4 rounded-lg transition-all duration-300">
-              Homes
-            </a>
-          </li>
-          <li>
-            <a href="/favourites" class="text-white hover:text-gray-300 hover:bg-gray-700 py-2 px-4 rounded-lg transition-all duration-300">
-              Favourites
-            </a>
-          </li>
-          <li>
-            <a href="/bookings" class="text-white hover:text-gray-300 hover:bg-gray-700 py-2 px-4 rounded-lg transition-all duration-300">
-              Bookings
-            </a>
-          </li>
-        <% } else { %>
-          <li>
-            <a href="/host/host-home-list" class="text-white hover:text-gray-300 hover:bg-gray-700 py-2 px-4 rounded-lg transition-all duration-300">
-              Host Homes
-            </a>
-          </li>
-          <li>
-            <a href="/host/add-home" class="text-white hover:text-gray-300 hover:bg-gray-700 py-2 px-4 rounded-lg transition-all duration-300">
-              Add Home
-            </a>
-          </li>
-        <% } %>
-      </ul>
-      <% } %>
-
-      <!-- Auth Buttons -->
-      <div class="flex items-center gap-4">
-        <% if (!isLoggedIn) { %>
-          <a href="/signup" class="text-white hover:text-gray-300 hover:bg-gray-700 py-2 px-4 rounded-lg transition-all duration-300">
-            Sign Up
-          </a>
-          <a href="/login" class="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white px-4 py-2 rounded-md font-semibold transition-all duration-300 hover:shadow-lg shadow-violet-500/25">
-            Login
-          </a>
-        <% } else { %>
-          <form action="/logout" method="POST">
-            <button type="submit" class="text-white hover:text-gray-300 hover:bg-gray-700 py-2 px-4 rounded-lg transition-all duration-300">
-              Logout
-            </button>
-          </form>
-        <% } %>
-      </div>
+      <!-- Mobile Button -->
+      <button id="mobile-menu-button" class="md:hidden text-gray-300 hover:text-white focus:outline-none">
+        <i class="fas fa-bars text-2xl"></i>
+      </button>
     </div>
 
-    <!-- Mobile Navigation -->
-    <div class="md:hidden">
-      <div class="flex justify-between items-center">
-        <a href="/" class="flex items-center text-white">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="w-6 h-6 mr-2 text-violet-400"
-            >
-            <path
-              d="M11.47 3.84a.75.75 0 011.06 0l8.69 8.69a.75.75 0 101.06-1.06l-8.689-8.69a2.25 2.25 0 00-3.182 0l-8.69 8.69a.75.75 0 001.061 1.06l8.69-8.69z"
-            />
-            <path
-              d="M12 5.432l8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 01-.75-.75v-4.5a.75.75 0 00-.75-.75h-3a.75.75 0 00-.75.75V21a.75.75 0 01-.75.75H5.625a1.875 1.875 0 01-1.875-1.875v-6.198a2.29 2.29 0 00.091-.086L12 5.43z"
-            />
-          </svg>
-          <span class="font-bold">HostKindle</span>
-        </a>
-
-        <button id="mobile-menu-button" class="p-2 rounded-lg hover:bg-gray-700">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="w-6 h-6"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-            />
-          </svg>
-        </button>
-      </div>
-
-      <div id="mobile-menu" class="hidden mt-2">
-        <ul class="flex flex-col space-y-1 border-t border-gray-600 pt-2 mt-2">
-          <% if (isLoggedIn) { %>
-            <% if (user && user.userType === 'guest') { %>
-              <li>
-                <a href="/homes" class="text-white hover:text-gray-300 hover:bg-gray-700 py-2 px-3 rounded-lg block transition-all duration-300">
-                  Homes
-                </a>
-              </li>
-              <li>
-                <a href="/favourites" class="text-white hover:text-gray-300 hover:bg-gray-700 py-2 px-3 rounded-lg block transition-all duration-300">
-                  Favourites
-                </a>
-              </li>
-              <li>
-                <a href="/bookings" class="text-white hover:text-gray-300 hover:bg-gray-700 py-2 px-3 rounded-lg block transition-all duration-300">
-                  Bookings
-                </a>
-              </li>
+    <!-- Mobile Menu -->
+    <div id="mobile-menu"
+      class="hidden md:hidden mt-4 bg-gray-800/95 backdrop-blur-xl rounded-2xl p-4 border border-gray-700 animate-slide-up">
+      <div class="flex flex-col space-y-3">
+        <% if (isLoggedIn) { %>
+          <% if (user && user.userType==='guest' ) { %>
+            <a href="/homes"
+              class="block px-4 py-2 rounded-lg hover:bg-white/5 text-gray-300 hover:text-primary transition-colors">Homes</a>
+            <a href="/favourites"
+              class="block px-4 py-2 rounded-lg hover:bg-white/5 text-gray-300 hover:text-primary transition-colors">Favourites</a>
+            <a href="/bookings"
+              class="block px-4 py-2 rounded-lg hover:bg-white/5 text-gray-300 hover:text-primary transition-colors">Bookings</a>
             <% } else { %>
-              <li>
-                <a href="/host/host-home-list" class="text-white hover:text-gray-300 hover:bg-gray-700 py-2 px-3 rounded-lg block transition-all duration-300">
-                  Host Homes
-                </a>
-              </li>
-              <li>
-                <a href="/host/add-home" class="text-white hover:text-gray-300 hover:bg-gray-700 py-2 px-3 rounded-lg block transition-all duration-300">
-                  Add Home
-                </a>
-              </li>
-            <% } %>
-            <li class="pt-2 border-t border-gray-600 mt-2">
-              <form action="/logout" method="POST">
-                <button type="submit" class="text-white hover:text-gray-300 hover:bg-gray-700 py-2 px-3 rounded-lg w-full text-left transition-all duration-300">
-                  Logout
-                </button>
-              </form>
-            </li>
-          <% } else { %>
-            <li>
-              <a href="/signup" class="text-white hover:text-gray-300 hover:bg-gray-700 py-2 px-3 rounded-lg block transition-all duration-300">
-                Sign Up
-              </a>
-            </li>
-            <li>
-              <a href="/login" class="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white py-2 px-3 rounded-lg block mt-2 transition-all duration-300 hover:shadow-lg shadow-violet-500/25">
-                Login
-              </a>
-            </li>
-          <% } %>
-        </ul>
+              <a href="/host/host-home-list"
+                class="block px-4 py-2 rounded-lg hover:bg-white/5 text-gray-300 hover:text-secondary transition-colors">Host
+                Homes</a>
+              <a href="/host/add-home"
+                class="block px-4 py-2 rounded-lg hover:bg-white/5 text-gray-300 hover:text-secondary transition-colors">Add
+                Home</a>
+              <% } %>
+                <div class="border-t border-gray-700 my-2"></div>
+                <form action="/logout" method="POST">
+                  <button type="submit"
+                    class="w-full text-left px-4 py-2 rounded-lg text-red-400 hover:bg-white/5 transition-colors">Logout</button>
+                </form>
+                <% } else { %>
+                  <a href="/login"
+                    class="block px-4 py-2 rounded-lg hover:bg-white/5 text-gray-300 hover:text-white transition-colors">Login</a>
+                  <a href="/signup"
+                    class="block px-4 py-2 rounded-lg bg-primary/20 text-primary hover:bg-primary/30 text-center font-medium transition-colors">Sign
+                    Up</a>
+                  <% } %>
+
+                    <div class="border-t border-gray-700 pt-3 mt-1 flex justify-between items-center px-4 hidden"></div>
       </div>
     </div>
   </nav>
@@ -177,4 +125,119 @@
       const menu = document.getElementById("mobile-menu");
       menu.classList.toggle("hidden");
     });
+
+  // Theme handling: enforce dark mode and hide toggles for now
+  (function () {
+    const checkboxes = Array.from(document.querySelectorAll('.theme-checkbox'));
+    const root = document.documentElement;
+
+    function applyTheme(theme) {
+      if (theme === 'light') {
+        root.setAttribute('data-theme', 'light');
+        root.classList.remove('dark');
+      } else {
+        root.removeAttribute('data-theme');
+        root.classList.add('dark');
+      }
+      localStorage.setItem('theme', theme === 'light' ? 'light' : 'dark');
+      checkboxes.forEach(cb => cb.checked = (theme === 'light'));
+    }
+
+    // Force dark mode and disable/hide toggles
+    applyTheme('dark');
+    checkboxes.forEach(cb => {
+      cb.checked = false;
+      cb.disabled = true;
+      cb.classList.add('hidden');
+    });
+  })();
+
+  // AJAX favourite toggle (kept from original)
+  (function () {
+    async function handleToggle(e) {
+      e.preventDefault();
+      const form = e.currentTarget;
+      const homeId = form.dataset.homeid || form.querySelector('input[name="id"]').value;
+      if (!homeId) return;
+      const btn = form.querySelector('.js-fav-btn');
+      if (!btn) return;
+
+      const icon = btn.querySelector('i');
+
+      // Optimistic UI
+      if (icon) {
+        if (icon.classList.contains('fa-regular')) {
+          icon.classList.remove('fa-regular');
+          icon.classList.add('fa-solid', 'text-red-500');
+        } else {
+          icon.classList.remove('fa-solid', 'text-red-500');
+          icon.classList.add('fa-regular');
+        }
+      }
+
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/favourites/toggle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ id: homeId })
+        });
+        const data = await res.json();
+        if (data && data.success) {
+          // Success, already updated UI optimistically
+        } else {
+          console.error('Toggle failed', data);
+          // Revert if failed
+          if (icon) {
+            if (icon.classList.contains('fa-solid')) {
+              icon.classList.remove('fa-solid', 'text-red-500');
+              icon.classList.add('fa-regular');
+            } else {
+              icon.classList.remove('fa-regular');
+              icon.classList.add('fa-solid', 'text-red-500');
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Error toggling favourite', err);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const forms = Array.from(document.querySelectorAll('.js-fav-form'));
+      forms.forEach(f => f.addEventListener('submit', handleToggle));
+    });
+  })();
 </script>
+
+<style>
+  /* Light mode overrides moved to input.css */
+
+  /* Slider styling */
+  .theme-switch {
+    position: relative;
+  }
+
+  .switch-track {
+    display: inline-block;
+  }
+
+  .switch-dot {
+    position: absolute;
+    top: 0.25rem;
+    left: 0.25rem;
+    transform: translateX(0);
+  }
+
+  .theme-switch .theme-checkbox:checked+.switch-track {
+    background-color: #fbbf24 !important;
+  }
+
+  .theme-switch .theme-checkbox:checked+.switch-track+.switch-dot {
+    transform: translateX(1.5rem);
+  }
+</style>

@@ -37,6 +37,7 @@ exports.postSignup = [
   .withMessage("Last Name should contain only alphabets"),
 
   check("email")
+  .trim()
   .isEmail()
   .withMessage("Please enter a valid email")
   .normalizeEmail(),
@@ -114,15 +115,19 @@ exports.postSignup = [
 ]
 
 exports.postLogin = async (req, res, next) => {
-  const {email, password} = req.body;
-  const user = await User.findOne({email});
+  // Normalize email (signup uses normalizeEmail(), but login didn't)
+  const rawEmail = (req.body.email || "");
+  const email = String(rawEmail).trim().toLowerCase();
+  const { password } = req.body;
+
+  const user = await User.findOne({ email });
   if (!user) {
     return res.status(422).render("auth/login", {
       pageTitle: "Login",
       currentPage: "login",
       isLoggedIn: false,
       errors: ["User does not exist"],
-      oldInput: {email},
+      oldInput: { email: rawEmail },
       user: {},
     });
   }
@@ -143,7 +148,15 @@ exports.postLogin = async (req, res, next) => {
   req.session.user = user;
   await req.session.save();
 
-  res.redirect("/");
+  // Redirect based on user type:
+  // - guests go to public homes list
+  // - hosts go to their own homes list page
+  if (user.userType === 'host') {
+    return res.redirect("/host/host-home-list");
+  }
+
+  // default / guest
+  res.redirect("/homes");
 }
 
 exports.postLogout = (req, res, next) => {

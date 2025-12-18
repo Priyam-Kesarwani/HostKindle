@@ -1,53 +1,103 @@
 <%- include('../partials/head') %>
-</head>
-<body class="text-white bg-[#1A1A2E] min-h-screen">
-  <%- include('../partials/nav') %>
+  </head>
 
-  <main class="container mx-auto px-4 py-10 max-w-6xl">
-    <h2 class="text-3xl md:text-4xl lg:text-5xl text-center mt-1 mb-8 tracking-wide font-bold text-white">
-      Here are your Favourites</h2>
+  <body
+    class="bg-base-100 text-base-content min-h-screen flex flex-col font-sans selection:bg-primary selection:text-white">
+    <%- include('../partials/nav') %>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-      <% favouriteHomes.forEach(home => { %>
-        <div class="bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-xl hover:-translate-y-2 transition-all duration-300 cursor-pointer max-w-sm">
-
-          <img src="<%= home.photo %>" alt="<%= home.houseName %>" class="w-full h-40 object-cover">
-
-          <div class="p-3 space-y-2">
-            <h3 class="text-lg font-bold text-white">
-              <%= home.houseName %>
-            </h3>
-
-            <div class="flex items-center text-gray-300">
-              <i class="fas fa-map-marker-alt mr-2 text-xs"></i>
-              <span class="text-xs"><%= home.location %></span>
-            </div>
-
-            <div class="flex items-center text-gray-300">
-              <i class="fas fa-<%= home.furnished ? 'check-circle' : 'times-circle' %> mr-2 text-xs <%= home.furnished ? 'text-green-400' : 'text-gray-500' %>"></i>
-              <span class="text-xs"><%= home.furnished ? 'Furnished' : 'Not Furnished' %></span>
-            </div>
-
-            <p class="text-gray-400 text-xs line-clamp-2"><%= home.description %></p>
-
-            <div class="flex justify-between items-center">
-              <span class="text-base font-bold text-violet-400">Rs <%= home.price %> / month</span>
-
-              <div class="flex items-center text-yellow-500">
-                <i class="fas fa-star mr-1 text-xs"></i>
-                <span class="text-xs font-medium"><%= home.rating %></span>
-              </div>
-            </div>
-
-            <form action="/favourites/delete/<%= home._id %>" method="POST">
-              <button type="submit" class="w-full mt-3 bg-red-500 hover:bg-red-600 text-white py-2 rounded-md font-semibold transition-all duration-300 text-sm">
-                Remove from Favourite
-              </button>
-            </form>
-          </div>
+      <main class="container mx-auto px-4 py-16 max-w-7xl animate-fade-in">
+        <div class="text-center mb-12">
+          <h1 class="text-4xl md:text-5xl font-display font-bold text-white mb-2">Your Favourites</h1>
+          <p class="text-gray-400">Places you've saved for later</p>
         </div>
-      <% }) %>
-    </div>
-  </main>
-</body>
-</html>
+
+        <% if (favouriteHomes.length===0) { %>
+          <div
+            class="flex flex-col items-center justify-center py-20 bg-neutral-900/30 border border-white/5 rounded-3xl">
+            <div class="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-6 text-red-500">
+              <i class="far fa-heart text-4xl"></i>
+            </div>
+            <h3 class="text-2xl font-semibold text-white mb-2">No favourites yet</h3>
+            <p class="text-gray-400 mb-8">Start exploring and save homes you love.</p>
+            <a href="/"
+              class="px-6 py-3 rounded-xl bg-gradient-to-r from-primary to-secondary text-white font-bold transition-all hover:shadow-lg shadow-primary/25">
+              Explore Homes
+            </a>
+          </div>
+          <% } else { %>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              <% favouriteHomes.forEach((home, index)=> { %>
+                <div
+                  class="group bg-neutral-900/50 dark:bg-[#1A1A2E] backdrop-blur-sm border border-white/5 rounded-2xl overflow-hidden hover:border-primary/30 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/5 cursor-pointer flex flex-col h-full animate-slide-up"
+                  style="animation-delay: <%= index * 100 %>ms;"
+                  onclick="if (!event.target.closest('form') && !event.target.closest('button')) { window.location.href='/homes/<%= home._id %>'; }">
+                  <% 
+                    // Safely get photos array
+                    let photos = [];
+                    if (home.photos && Array.isArray(home.photos) && home.photos.length > 0) {
+                      photos = home.photos.filter(p => p && typeof p === 'string' && p.trim() !== '');
+                    } else if (home.photo && typeof home.photo === 'string' && home.photo.trim() !== '') {
+                      photos = [home.photo];
+                    }
+                    // Normalize local paths while preserving full URLs
+                    photos = photos.map(p => (/^https?:\/\//i.test(p) ? p : (p.startsWith('/') ? p : '/' + p)));
+                    const mainPhoto = photos.length > 0 ? photos[0] : '/uploads/default.jpg';
+                  %>
+                    <div class="relative w-full aspect-[4/3] overflow-hidden">
+                      <img src="<%= mainPhoto %>" alt="<%= home.houseName %>"
+                        class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                      <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+
+                      <div class="absolute top-3 right-3 z-10" onclick="event.stopPropagation()">
+                        <%- include('../partials/favourite', { home: home }) %>
+                      </div>
+
+                      <div class="absolute bottom-3 left-3 right-3">
+                        <h3 class="text-white font-bold leading-tight truncate mb-1">
+                          <%= home.houseName %>
+                        </h3>
+                        <div class="flex justify-between items-end">
+                          <p class="text-gray-300 text-xs"><i class="fas fa-map-marker-alt mr-1"></i>
+                            <%= home.location %>
+                          </p>
+                          <div
+                            class="flex items-center text-yellow-500 text-xs font-bold bg-black/30 px-2 py-1 rounded-lg backdrop-blur-md">
+                            <i class="fas fa-star mr-1"></i>
+                            <%= (home.rating || 0).toFixed(1) %>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="p-4 flex flex-col flex-grow">
+                      <div class="grid grid-cols-2 gap-2 text-xs text-gray-400 mb-4">
+                        <div class="flex items-center gap-2 bg-white/5 p-2 rounded-lg">
+                          <i class="fas fa-rupee-sign text-primary"></i>
+                          <span class="text-white font-medium">
+                            <%= home.price %>
+                          </span>/mo
+                        </div>
+                        <div class="flex items-center gap-2 bg-white/5 p-2 rounded-lg truncate">
+                          <i class="fas fa-couch text-secondary"></i>
+                          <span class="truncate">
+                            <%= typeof home.furnished==='string' ? home.furnished : (home.furnished ? 'Furnished'
+                              : 'Unfurnished' ) %>
+                          </span>
+                        </div>
+                      </div>
+
+                      <form action="/favourites/delete/<%= home._id %>" method="POST" class="mt-auto">
+                        <button type="submit"
+                          class="w-full py-2 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 transition-colors text-sm font-medium">
+                          Remove Favourite
+                        </button>
+                      </form>
+                    </div>
+                </div>
+                <% }) %>
+            </div>
+            <% } %>
+      </main>
+  </body>
+
+  </html>

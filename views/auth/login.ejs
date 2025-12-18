@@ -1,57 +1,70 @@
 <%- include('../partials/head') %>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   </head>
 
-  <body class="text-white bg-[#1A1A2E] min-h-screen">
+  <body class="bg-base-100 text-base-content min-h-screen flex flex-col font-sans selection:bg-primary selection:text-white">
     <%- include('../partials/nav') %>
-      <main class="container mx-auto mt-8 p-8 bg-gray-800 rounded-lg shadow-lg max-w-2xl">
-        <h1 class="text-3xl font-bold mb-6 text-center text-white border-b border-gray-600 pb-4">Welcome Back</h1>
 
-        <form action="/login" method="POST" class="max-w-md mx-auto">
-          <%- include('../partials/errors') %>
+      <div class="relative flex-grow flex items-center justify-center p-4 overflow-hidden">
+        <!-- Background Elements -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+          <div
+            class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-primary/10 blur-[100px] animate-pulse-slow">
+          </div>
+          <div
+            class="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-secondary/10 blur-[100px] animate-pulse-slow"
+            style="animation-delay: 2s;"></div>
+        </div>
 
-            <!-- Email field -->
-            <div class="mb-5">
-              <label for="email" class="block text-sm font-medium text-gray-300 mb-1">Email Address</label>
-              <div class="relative">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                  <i class="fas fa-envelope"></i>
-                </span>
-                <input type="email" id="email" name="email" placeholder="your.email@example.com"
-                  value="<%= oldInput.email ? oldInput.email : '' %>"
-                  class="w-full pl-10 px-4 py-3 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition"
-                  required />
-              </div>
+        <main class="w-full max-w-md relative z-10 animate-fade-in">
+          <div class="bg-neutral-900/50 backdrop-blur-xl border border-white/5 rounded-3xl p-8 shadow-2xl">
+            <div class="text-center mb-8">
+              <h1 class="text-3xl font-display font-bold text-white mb-2">Welcome Back</h1>
+              <p class="text-gray-400">Sign in to continue your journey</p>
             </div>
 
-            <!-- Password field -->
-            <div class="mb-6">
-              <div class="flex items-center justify-between mb-1">
-                <label for="password" class="block text-sm font-medium text-gray-300">Password</label>
-              </div>
-              <div class="relative">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                  <i class="fas fa-lock"></i>
-                </span>
-                <input type="password" id="password" name="password" placeholder="Enter Your Password"
-                  class="w-full pl-10 px-4 py-3 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition"
-                  required />
-              </div>
-            </div>
+            <form action="/login" method="POST" class="space-y-6">
+              <%- include('../partials/errors') %>
 
-            <!-- Submit button with animation -->
-            <button type="submit"
-              class="w-full bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white py-3 rounded-md focus:ring-4 focus:ring-violet-500/50 font-medium transition-all duration-300 flex items-center justify-center shadow-violet-500/25">
-              <span>Sign In</span>
-              <i class="fas fa-sign-in-alt ml-2"></i>
-            </button>
+                <div class="space-y-2">
+                  <label for="email" class="block text-sm font-medium text-gray-300">Email Address</label>
+                  <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"><i
+                        class="fas fa-envelope"></i></span>
+                    <input type="email" id="email" name="email" placeholder="your.email@example.com"
+                      value="<%= oldInput && oldInput.email ? oldInput.email : '' %>"
+                      class="w-full pl-11 pr-4 py-3 bg-neutral border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                      required />
+                  </div>
+                </div>
 
-            <!-- Sign up link -->
-            <p class="text-center mt-6 text-gray-300">
-              Don't have an account yet? <a href="/signup" class="text-violet-400 hover:underline">Sign up</a>
-            </p>
-        </form>
-      </main>
+                <div class="space-y-2">
+                  <div class="flex justify-between">
+                    <label for="password" class="block text-sm font-medium text-gray-300">Password</label>
+                    <!-- Add Forgot Password link if exists, else omit -->
+                  </div>
+                  <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"><i
+                        class="fas fa-lock"></i></span>
+                    <input type="password" id="password" name="password" placeholder="Enter your password"
+                      class="w-full pl-11 pr-4 py-3 bg-neutral border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                      required />
+                  </div>
+                </div>
+
+                <button type="submit"
+                  class="w-full bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white py-3 rounded-xl font-bold shadow-lg shadow-primary/25 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 group">
+                  <span>Sign In</span>
+                  <i class="fas fa-arrow-right transform group-hover:translate-x-1 transition-transform"></i>
+                </button>
+
+                <p class="text-center text-gray-400 text-sm">
+                  Don't have an account? <a href="/signup"
+                    class="text-primary hover:text-white font-semibold transition-colors">Sign up</a>
+                </p>
+            </form>
+          </div>
+        </main>
+      </div>
   </body>
 
   </html>

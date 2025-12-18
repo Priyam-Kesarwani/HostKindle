@@ -1,57 +1,133 @@
 <%- include('../partials/head') %>
-</head>
-<body class="text-white bg-[#1A1A2E] min-h-screen">
-  <%- include('../partials/nav') %>
+  </head>
 
-  <main class="container mx-auto px-4 py-10 max-w-6xl">
-    <h2 class="text-3xl md:text-4xl lg:text-5xl text-center mt-1 mb-8 tracking-wide font-bold text-white">
-      Here are our Registered Homes
-    </h2>
+  <body class="bg-base-100 text-base-content min-h-screen">
+    <%- include('../partials/nav') %>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-      <% registeredHomes.forEach(home => { %>
-        <div class="bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-xl hover:-translate-y-2 transition-all duration-300 cursor-pointer max-w-sm">
+      <main class="container mx-auto px-4 py-10 max-w-6xl">
+        <h2 class="text-3xl md:text-4xl lg:text-5xl text-center mt-1 mb-8 tracking-wide font-bold text-base-content">
+          Registered Homes Across Top Locations
+        </h2>
 
-          <img src="<%= home.photo %>" alt="<%= home.houseName %>" class="w-full h-40 object-cover">
-
-          <div class="p-3 space-y-2">
-            <h3 class="text-lg font-bold text-white">
-              <%= home.houseName %>
-            </h3>
-
-            <div class="flex items-center text-gray-300">
-              <i class="fas fa-map-marker-alt mr-2 text-xs"></i>
-              <span class="text-xs"><%= home.location %></span>
-            </div>
-
-            <div class="flex items-center text-gray-300">
-              <i class="fas fa-<%= home.furnished ? 'check-circle' : 'times-circle' %> mr-2 text-xs <%= home.furnished ? 'text-green-400' : 'text-gray-500' %>"></i>
-              <span class="text-xs"><%= home.furnished ? 'Furnished' : 'Not Furnished' %></span>
-            </div>
-
-            <p class="text-gray-400 text-xs line-clamp-2"><%= home.description %></p>
-
-            <div class="flex justify-between items-center">
-              <span class="text-base font-bold text-violet-400">Rs <%= home.price %> / month</span>
-
-              <div class="flex items-center text-yellow-500">
-                <i class="fas fa-star mr-1 text-xs"></i>
-                <span class="text-xs font-medium"><%= home.rating %></span>
-              </div>
-            </div>
-
-            <div class="flex gap-2">
-              <a href="/homes/<%= home._id %>" class="flex-1 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white py-2 rounded-md text-center font-semibold transition-all duration-300 shadow-violet-500/25 text-sm">
-                Details
-              </a>
-              <div class="flex-1">
-                <%- include('../partials/favourite', {home: home}) %>
-              </div>
-            </div>
-          </div>
+        <div class="flex items-center justify-end mb-4">
+          <label for="sort-select" class="text-sm text-gray-300 mr-2">Sort by:</label>
+          <select id="sort-select" class="bg-gray-700 text-white rounded-md px-3 py-1 text-sm">
+            <option value="price|asc">Price: Low → High</option>
+            <option value="price|desc">Price: High → Low</option>
+            <option value="rating|desc">Customer rating</option>
+          </select>
         </div>
-      <% }) %>
-    </div>
-  </main>
-</body>
-</html>
+        <div id="homes-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          <% registeredHomes.forEach((home, index)=> { %>
+            <div role="link" tabindex="0" title="View details"
+              class="home-card group bg-[#E4ECFF] text-base-content dark:bg-[#1A1A2E] border border-[#C7D2FE] dark:border-gray-700 rounded-2xl overflow-hidden hover:border-primary/40 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/10 cursor-pointer flex flex-col h-full animate-slide-up"
+              style="animation-delay: <%= index * 100 %>ms;"
+              data-price="<%= Number(String(home.price || '').replace(/[^0-9.-]/g, '') ) || 0 %>"
+              data-rating="<%= Number(home.rating) || 0 %>"
+              onclick="if (!event.target.closest('form')) { window.location='/homes/<%= home._id %>'; }"
+              onkeydown="if ((event.key === 'Enter' || event.key === ' ') && !event.target.closest('form')) { window.location='/homes/<%= home._id %>'; }">
+              <% 
+                // Safely get photos array, filtering out any invalid values
+                let photos = [];
+                if (home.photos && Array.isArray(home.photos) && home.photos.length > 0) {
+                  photos = home.photos.filter(p => p && typeof p === 'string' && p.trim() !== '');
+                } else if (home.photo && typeof home.photo === 'string' && home.photo.trim() !== '') {
+                  photos = [home.photo];
+                }
+                // Ensure local photo paths start with /; keep Cloudinary URLs as-is
+                photos = photos.map(p => (/^https?:\/\//i.test(p) ? p : (p.startsWith('/') ? p : '/' + p)));
+                const mainPhoto = photos.length > 0 ? photos[0] : '/uploads/default.jpg';
+              %>
+                <div class="relative w-full aspect-[4/3] overflow-hidden">
+                  <img src="<%= mainPhoto %>" alt="<%= home.houseName %>"
+                    class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                  <div
+                    class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  </div>
+
+                  <!-- Favourite Button Wrapper -->
+                  <div onclick="event.stopPropagation()" class="absolute top-3 right-3 z-20">
+                    <%- include('../partials/favourite', { home: home }) %>
+                  </div>
+                </div>
+
+                <div class="p-5 flex flex-col flex-grow bg-[#E4ECFF] dark:bg-[#1A1A2E]">
+                  <div class="flex justify-between items-start mb-2">
+                    <h3
+                      class="text-lg font-bold text-base-content leading-tight group-hover:text-primary transition-colors">
+                      <%= home.houseName %>
+                    </h3>
+                    <div class="flex items-center bg-base-200 dark:bg-white/5 px-2 py-1 rounded-lg border border-base-200 dark:border-white/5">
+                      <i class="fas fa-star text-yellow-500 text-xs mr-1"></i>
+                      <span class="text-xs font-bold text-base-content">
+                        <%= (home.rating || 0).toFixed(1) %>
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center text-gray-600 dark:text-gray-400 mb-3 text-sm">
+                    <i class="fas fa-map-marker-alt mr-2 text-primary/70"></i>
+                    <span class="truncate">
+                      <%= home.location %>
+                    </span>
+                  </div>
+
+                  <p class="text-gray-700 dark:text-gray-500 text-sm line-clamp-2 mb-4 flex-grow">
+                    <%= home.description %>
+                  </p>
+
+                  <div class="border-t border-base-200 dark:border-white/5 pt-4 mt-auto flex justify-between items-center">
+                    <div>
+                      <span class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">Price</span>
+                      <div class="text-lg font-bold text-base-content">
+                        Rs <%= home.price %> <span class="text-sm text-gray-600 dark:text-gray-500 font-normal">/ month</span>
+                      </div>
+                    </div>
+
+                    <% if (isLoggedIn && user && String(user._id) !==String(home.owner)) { %>
+                      <form action="/homes/<%= home._id %>/book" method="POST" onsubmit="event.stopPropagation();">
+                        <button type="submit"
+                          class="bg-base-200 hover:bg-primary hover:text-white text-gray-700 dark:text-gray-300 p-2 rounded-lg transition-all duration-300 border border-base-200 dark:border-white/10 group-hover:border-primary/50">
+                          <i class="fas fa-arrow-right"></i>
+                        </button>
+                      </form>
+                      <% } else { %>
+                        <div class="text-xs text-gray-500 italic">Login to book</div>
+                        <% } %>
+                  </div>
+                </div>
+            </div>
+            <% }) %>
+        </div>
+
+        <script>
+          (function () {
+            const select = document.getElementById('sort-select');
+            const container = document.getElementById('homes-grid');
+            if (!select || !container) return;
+
+            function sortHomes(val) {
+              const [field, order] = val.split('|');
+              const cards = Array.from(container.querySelectorAll('.home-card'));
+              cards.sort((a, b) => {
+                const av = parseFloat(a.dataset[field]) || 0;
+                const bv = parseFloat(b.dataset[field]) || 0;
+                return order === 'asc' ? av - bv : bv - av;
+              });
+              cards.forEach(c => container.appendChild(c));
+            }
+
+            select.addEventListener('change', function () {
+              sortHomes(this.value);
+            });
+
+            // Apply initial sort on page load (use the current select value)
+            if (select.value) {
+              sortHomes(select.value);
+            }
+          })();
+        </script>
+      </main>
+  </body>
+
+  </html>

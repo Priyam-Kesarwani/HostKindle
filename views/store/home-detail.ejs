@@ -1,67 +1,422 @@
 <%- include('../partials/head') %>
   </head>
-  <body class="text-white bg-[#1A1A2E] min-h-screen">
-      <%- include('../partials/nav') %>
-      <main class="container mx-auto px-4 py-10 max-w-6xl">
-          <h2 class="text-3xl md:text-4xl lg:text-5xl text-center mt-1 mb-8 tracking-wide font-bold text-white">
-              Details of <%= home.houseName %>
-          </h2>
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 bg-gray-800 rounded-lg shadow-lg p-6">
-              <div class="rounded-lg overflow-hidden">
-                  <img src="<%= home.photo %>" alt="<%= home.name %>" class="w-full h-96 object-cover rounded-lg">
-              </div>
-              
-              <div class="space-y-6">
-                  <div class="border-b border-gray-600 pb-4">
-                      <h3 class="text-2xl font-semibold text-white mb-2">Description</h3>
-                      <p class="text-gray-300"><%= home.description %></p>
+
+  <body class="bg-base-100 text-base-content min-h-screen flex flex-col font-sans selection:bg-primary selection:text-white">
+    <%- include('../partials/nav') %>
+
+      <!-- Hero / Title Section -->
+      <div class="relative py-12 md:py-16 bg-gradient-to-b from-neutral-900/50 to-neutral">
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+          <div class="absolute top-[-50%] left-[-20%] w-[80%] h-[80%] rounded-full bg-primary/10 blur-[120px]"></div>
+          <div class="absolute bottom-[-50%] right-[-20%] w-[80%] h-[80%] rounded-full bg-secondary/10 blur-[120px]">
+          </div>
+        </div>
+
+        <div class="container mx-auto px-4 relative z-10 text-center">
+          <h1 class="text-4xl md:text-6xl font-display font-bold text-white mb-4 animate-fade-in">
+            <%= home.houseName %>
+          </h1>
+          <div class="flex items-center justify-center gap-6 text-gray-400 animate-slide-up"
+            style="animation-delay: 200ms;">
+            <span class="flex items-center"><i class="fas fa-map-marker-alt text-primary mr-2"></i>
+              <%= home.location %>
+            </span>
+            <span class="flex items-center"><i class="fas fa-star text-yellow-500 mr-2"></i>
+              <%= (home.rating || 0).toFixed(1) %> (<%= home.ratingCount || 0 %>)
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <main class="container mx-auto px-4 pb-20 max-w-7xl animate-slide-up" style="animation-delay: 400ms;">
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
+          <!-- Image Gallery (Left - 2 Cols) -->
+          <div class="lg:col-span-2 space-y-4">
+            <% let photos=[]; if (home.photos && Array.isArray(home.photos) && home.photos.length> 0) {
+              photos = home.photos.filter(p => p && typeof p === 'string' && p.trim() !== '');
+              } else if (home.photo && typeof home.photo === 'string' && home.photo.trim() !== '') {
+              photos = [home.photo];
+              }
+              photos = photos.map(p => (/^https?:\/\//i.test(p) ? p : (p.startsWith('/') ? p : '/' + p)));
+              const mainPhoto = photos.length > 0 ? photos[0] : '/uploads/default.jpg';
+              const limitedPhotos = photos.slice(0, 3);
+              %>
+
+              <div class="rounded-3xl overflow-hidden shadow-2xl relative group h-[400px] md:h-[500px]">
+                <img id="main-photo" src="<%= mainPhoto %>" alt="<%= home.houseName %>"
+                  class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  onerror="this.src='/uploads/default.jpg'; this.onerror=null;">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60">
+                </div>
+
+                <div class="absolute bottom-6 left-6 right-6 flex justify-between items-end">
+                  <div>
+                    <div
+                      class="inline-block px-3 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-xs text-white mb-2">
+                      <%= photos.length %> Photos
+                    </div>
                   </div>
 
-                  <div class="border-b border-gray-600 pb-4">
-                      <h3 class="text-2xl font-semibold text-white mb-2">Location</h3>
-                      <p class="text-gray-300"><%= home.location %></p>
-                  </div>
-                  
-                  <div class="border-b border-gray-600 pb-4">
-                      <h3 class="text-2xl font-semibold text-white mb-2">Price</h3>
-                      <p class="text-violet-400 text-xl font-bold">Rs <%= home.price %> / month</p>
-                  </div>
-                  
-                  <div class="border-b border-gray-600 pb-4">
-                      <h3 class="text-2xl font-semibold text-white mb-2">Rating</h3>
-                      <div class="flex items-center">
-                          <span class="text-yellow-400 text-xl">★</span>
-                          <span class="ml-2 text-lg text-gray-300"><%= home.rating %> / 5</span>
-                      </div>
-                  </div>
-                  
-                  <div class="border-b border-gray-600 pb-4">
-                      <h3 class="text-2xl font-semibold text-white mb-2">Furnished</h3>
-                      <div class="flex items-center">
-                          <i class="fas fa-<%= home.furnished ? 'check-circle' : 'times-circle' %> mr-2 text-xl <%= home.furnished ? 'text-green-400' : 'text-gray-500' %>"></i>
-                          <span class="text-lg text-gray-300"><%= home.furnished ? 'Furnished' : 'Not Furnished' %></span>
-                      </div>
-                  </div>
-                  
-                  <div class="flex gap-4">
-                    <div class="flex-1">
-                      <%- include('../partials/favourite') %>
-                    </div>
-                    <div class="flex-1">
-                      <% if (isLoggedIn) { %>
-                        <button class="w-full bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white py-3 rounded-md font-semibold transition-all duration-300 hover:shadow-lg shadow-violet-500/25">
-                          Book Now
-                        </button>
-                      <% } else { %>
-                        <a href="/login" class="w-full bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white py-3 rounded-md font-semibold transition-all duration-300 hover:shadow-lg shadow-violet-500/25 block text-center">
-                          Book Now
-                        </a>
-                      <% } %>
+                  <!-- Action Buttons overlay on image for mobile/desktop common actions -->
+                  <div class="flex gap-3">
+                    <div onclick="event.stopPropagation()">
+                      <%- include('../partials/favourite', { home: home }) %>
                     </div>
                   </div>
+                </div>
               </div>
+
+              <% if (limitedPhotos.length> 1) { %>
+                <div class="grid grid-cols-3 sm:grid-cols-4 gap-4">
+                  <% limitedPhotos.forEach((photo, index)=> { %>
+                    <div
+                      class="relative rounded-xl overflow-hidden aspect-square cursor-pointer group border-2 <%= index === 0 ? 'border-primary' : 'border-transparent' %> hover:border-primary transition-all duration-300"
+                      onclick="const mainImg = document.getElementById('main-photo'); if(mainImg) { mainImg.src='<%= photo %>'; } const container = this.parentElement; const thumbs = container.querySelectorAll('div.relative'); thumbs.forEach(div => { div.classList.remove('border-primary'); div.classList.add('border-transparent'); }); this.classList.remove('border-transparent'); this.classList.add('border-primary');">
+                      <img src="<%= photo %>" alt="Thumbnail"
+                        class="w-full h-full object-cover group-hover:opacity-100 opacity-70 transition-opacity duration-300">
+                      <% if (index===2 && photos.length> 3) { %>
+                        <div class="absolute inset-0 bg-black/60 flex items-center justify-center">
+                          <span class="text-white font-bold text-lg">+<%= photos.length - 3 %></span>
+                        </div>
+                        <% } %>
+                    </div>
+                    <% }); %>
+                </div>
+                <% if (photos.length > 3) { %>
+                  <div class="mt-4">
+                    <a href="/homes/<%= home._id %>/photos"
+                      class="btn btn-primary w-full flex items-center justify-center gap-2">
+                      See all photos
+                      <i class="fas fa-images text-sm"></i>
+                    </a>
+                  </div>
+                <% } %>
+                <% } %>
           </div>
+
+          <!-- Info Sidebar (Right - 1 Col) -->
+          <div class="lg:col-span-1">
+            <div
+              class="bg-neutral-900/50 backdrop-blur-xl border border-white/5 rounded-3xl p-8 sticky top-24 shadow-2xl">
+              <div class="flex justify-between items-start mb-6 border-b border-white/5 pb-6">
+                <div>
+                  <p class="text-gray-400 text-sm uppercase tracking-wider mb-1">Price per month</p>
+                  <h3 class="text-3xl font-bold text-white">Rs <%= home.price %>
+                  </h3>
+                </div>
+                <div class="flex items-center bg-yellow-500/10 px-3 py-1 rounded-lg border border-yellow-500/20">
+                  <i class="fas fa-star text-yellow-500 mr-1.5"></i>
+                  <span class="text-yellow-200 font-bold">
+                    <%= (home.rating || 0).toFixed(1) %>
+                  </span>
+                </div>
+              </div>
+
+              <div class="space-y-6 mb-8">
+                <div class="flex items-center gap-4 text-gray-300">
+                  <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-primary">
+                    <i class="fas fa-couch"></i>
+                  </div>
+                  <div>
+                    <p class="text-xs text-gray-500 uppercase">Furnishing</p>
+                    <p class="font-medium">
+                      <%= typeof home.furnished==='string' ? home.furnished : (home.furnished ? 'Furnished'
+                        : 'Unfurnished' ) %>
+                    </p>
+                  </div>
+                </div>
+
+                <% if (home.bhk) { %>
+                  <div class="flex items-center gap-4 text-gray-300">
+                    <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-secondary">
+                      <i class="fas fa-bed"></i>
+                    </div>
+                    <div>
+                      <p class="text-xs text-gray-500 uppercase">Configuration</p>
+                      <p class="font-medium">
+                        <%= home.bhk %>
+                      </p>
+                    </div>
+                  </div>
+                  <% } %>
+
+                    <div class="flex items-center gap-4 text-gray-300">
+                      <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-accent">
+                        <i class="fas fa-user-check"></i>
+                      </div>
+                      <div>
+                        <p class="text-xs text-gray-500 uppercase">Host</p>
+                        <p class="font-medium">Verified Host</p>
+                        <!-- Could connect to user data if available in details -->
+                      </div>
+                    </div>
+              </div>
+
+              <!-- CTA Buttons -->
+              <div class="space-y-3">
+                <% if (isLoggedIn && user && String(user._id)===String(home.owner)) { %>
+                  <a href="/host/edit-home/<%= home._id %>?editing=true"
+                    class="block w-full text-center bg-white/10 hover:bg-white/20 border border-white/5 text-white py-3 rounded-xl font-bold transition-all">
+                    Edit Listing
+                  </a>
+                  <form action="/host/delete-home/<%= home._id %>" method="POST"
+                    onsubmit="return confirm('Delete this home permanently?');">
+                    <button type="submit"
+                      class="block w-full text-center bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-500 py-3 rounded-xl font-bold transition-all">
+                      Delete Listing
+                    </button>
+                  </form>
+                  <% } else if (isLoggedIn) { %>
+                    <form action="/homes/<%= home._id %>/book" method="POST" class="space-y-3">
+                      <div class="grid grid-cols-2 gap-3">
+                        <div class="form-control">
+                          <label class="label"><span class="label-text text-gray-300">Start</span></label>
+                          <input type="date" name="startDate"
+                            class="input input-bordered w-full bg-white/5 border-white/10 text-white"
+                            min="<%= new Date().toISOString().split('T')[0] %>">
+                        </div>
+                        <div class="form-control">
+                          <label class="label"><span class="label-text text-gray-300">End</span></label>
+                          <input type="date" name="endDate"
+                            class="input input-bordered w-full bg-white/5 border-white/10 text-white"
+                            min="<%= new Date().toISOString().split('T')[0] %>">
+                        </div>
+                      </div>
+                      <button type="submit"
+                        class="w-full bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white py-4 rounded-xl font-bold shadow-lg shadow-primary/25 transition-all hover:scale-[1.02] active:scale-[0.98]">
+                        Book Now
+                        <i class="fas fa-arrow-right"></i>
+                      </button>
+                    </form>
+                  <% } else { %>
+                    <a href="/login"
+                      class="w-full inline-flex items-center justify-center gap-2 bg-white/10 text-white font-semibold py-3 rounded-2xl transition-all hover:bg-white/20 border border-white/10">
+                      Login to book
+                      <i class="fas fa-sign-in-alt"></i>
+                    </a>
+                    <% } %>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Description & Features -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
+          <div class="lg:col-span-2 space-y-8">
+            <div class="bg-neutral-900/30 backdrop-blur-md rounded-3xl p-8 border border-white/5">
+              <h2 class="text-2xl font-bold text-white mb-4">About this place</h2>
+              <p class="text-gray-400 leading-relaxed text-lg">
+                <%= home.description && home.description.trim() !=='' ? home.description : 'No description provided.' %>
+              </p>
+
+              <% if (home.keywords && Array.isArray(home.keywords) && home.keywords.length> 0) { %>
+                <div class="flex flex-wrap gap-2 mt-6">
+                  <% home.keywords.forEach(k=> { %>
+                    <span
+                      class="inline-flex items-center px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-sm text-gray-300">
+                      <i class="fas fa-tag mr-2 text-primary/70 text-xs"></i>
+                      <%= k %>
+                    </span>
+                    <% }) %>
+                </div>
+                <% } %>
+            </div>
+
+            <!-- Rating Section -->
+            <div class="bg-neutral-900/30 backdrop-blur-md rounded-3xl p-8 border border-white/5" id="rating">
+              <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-white">Rate this home</h2>
+              </div>
+
+              <div
+                class="flex flex-col sm:flex-row items-center gap-8 bg-neutral p-6 rounded-2xl border border-white/5">
+                <div class="text-center">
+                  <div class="text-5xl font-bold text-white mb-2">
+                    <%= (home.rating || 0).toFixed(1) %>
+                  </div>
+                  <div class="flex justify-center text-yellow-500 mb-2">
+                    <% for(let i=1; i<=5; i++) { %>
+                      <i
+                        class="<%= (home.rating || 0) >= i ? 'fas' : ((home.rating || 0) >= i-0.5 ? 'fas fa-star-half-alt' : 'far') %> fa-star"></i>
+                      <% } %>
+                  </div>
+                  <p class="text-sm text-gray-400">
+                    <%= home.ratingCount || 0 %> ratings
+                  </p>
+                </div>
+
+                <div class="h-px sm:h-20 w-full sm:w-px bg-white/10"></div>
+
+                <div class="flex-grow w-full text-center sm:text-left">
+                  <% if (isLoggedIn && user) { %>
+                    <p class="text-gray-300 mb-4">Share your experience by rating this property</p>
+                    <form action="/homes/<%= home._id %>/rate" method="POST"
+                      class="inline-flex bg-neutral-800 rounded-full px-6 py-2 border border-white/10" id="rating-form">
+                      <input type="hidden" name="value" id="rating-value"
+                        value="<%= userRating ? userRating.value : '' %>">
+                      <div class="flex items-center gap-3">
+                        <% for (let i=1; i <=5; i++) { %>
+                          <button type="button"
+                            class="rating-star text-3xl focus:outline-none transition-transform hover:scale-125 <%= userRating && userRating.value >= i ? 'text-yellow-400' : 'text-gray-600' %>"
+                            data-value="<%= i %>" aria-label="Rate <%= i %> out of 5">★</button>
+                          <% } %>
+                      </div>
+                    </form>
+                    <% } else { %>
+                      <p class="text-gray-400 mb-2">Login to rate this home</p>
+                      <a href="/login" class="text-primary hover:text-white transition-colors font-semibold">Log in
+                        now</a>
+                      <% } %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reviews Section -->
+        <div id="reviews" class="bg-neutral-900/30 backdrop-blur-md rounded-3xl p-8 border border-white/5">
+          <div class="flex items-center justify-between mb-8">
+            <h2 class="text-2xl font-bold text-white">Guest Reviews</h2>
+          </div>
+
+          <% if (home.feedbackSummary) { %>
+            <div class="bg-gradient-to-r from-primary/10 to-secondary/10 border border-white/5 rounded-2xl p-6 mb-8">
+              <div class="flex gap-4">
+                <div
+                  class="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                  <i class="fas fa-magic text-white"></i>
+                </div>
+                <div>
+                  <h4 class="text-lg font-bold text-white mb-2">AI Summary</h4>
+                  <p class="text-gray-300 leading-relaxed">
+                    <%= home.feedbackSummary %>
+                  </p>
+                </div>
+              </div>
+            </div>
+            <% } %>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Add Review Form -->
+                <div class="md:col-span-2 lg:col-span-1">
+                  <% if (isLoggedIn && user && user.userType==='guest' ) { %>
+                    <div class="bg-neutral p-6 rounded-2xl border border-white/5 h-full">
+                      <h4 class="text-lg font-bold text-white mb-4">Write a Review</h4>
+                      <form action="/homes/<%= home._id %>/comments" method="POST" class="space-y-4">
+                        <textarea name="text" rows="4" maxlength="500"
+                          placeholder="How was your stay? Share your thoughts..."
+                          class="w-full bg-neutral-900/50 border border-gray-700 rounded-xl p-4 text-white placeholder-gray-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors resize-none"
+                          required></textarea>
+                        <button type="submit"
+                          class="bg-white/10 hover:bg-white/20 text-white px-6 py-2.5 rounded-xl font-semibold transition-all border border-white/5 w-full sm:w-auto">
+                          Post Review
+                        </button>
+                      </form>
+                    </div>
+                    <% } else if (!isLoggedIn) { %>
+                      <div
+                        class="bg-neutral p-6 rounded-2xl border border-white/5 border-dashed flex flex-col items-center justify-center text-center h-32">
+                        <p class="text-gray-400 mb-2">Want to share your experience?</p>
+                        <a href="/login" class="text-primary hover:text-white font-semibold">Log in to write a
+                          review</a>
+                      </div>
+                      <% } %>
+                </div>
+
+                <!-- Review List -->
+                <div class="md:col-span-2 lg:col-span-1 space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                  <% if (comments && comments.length> 0) { %>
+                    <% comments.forEach(comment=> { %>
+                      <div
+                        class="bg-neutral p-5 rounded-2xl border border-white/5 hover:border-white/10 transition-colors">
+                        <div class="flex items-center justify-between mb-3">
+                          <div class="flex items-center gap-3">
+                            <div
+                              class="w-8 h-8 rounded-full bg-gradient-to-tr from-gray-700 to-gray-600 flex items-center justify-center font-bold text-xs text-white">
+                              <%= (comment.user && comment.user.firstName) ? comment.user.firstName.charAt(0) : 'G' %>
+                            </div>
+                            <div>
+                              <h5 class="text-sm font-bold text-white">
+                                <%= comment.user && comment.user.firstName ? comment.user.firstName : 'Guest' %>
+                                  <%= comment.user && comment.user.lastName ? comment.user.lastName : '' %>
+                              </h5>
+                              <p class="text-xs text-gray-500">
+                                <%= new Date(comment.createdAt).toLocaleDateString() %>
+                              </p>
+                            </div>
+                          </div>
+                          <% if (isLoggedIn && user && user.userType==='guest' && String(user._id)===String(comment.user
+                            && comment.user._id)) { %>
+                            <div class="relative group">
+                              <button class="text-gray-500 hover:text-white"><i class="fas fa-ellipsis-v"></i></button>
+                              <div
+                                class="absolute right-0 mt-2 w-32 bg-gray-800 rounded-xl shadow-xl border border-gray-700 p-1 hidden group-hover:block z-10">
+                                <a href="/homes/<%= home._id %>/comments/<%= comment._id %>/edit"
+                                  class="block px-3 py-1.5 text-xs text-gray-300 hover:bg-white/10 rounded-lg mb-1">Edit</a>
+                                <form action="/homes/<%= home._id %>/comments/<%= comment._id %>/delete" method="POST"
+                                  onsubmit="return confirm('Delete this comment?');">
+                                  <button type="submit"
+                                    class="w-full text-left px-3 py-1.5 text-xs text-red-400 hover:bg-white/10 rounded-lg">Delete</button>
+                                </form>
+                              </div>
+                            </div>
+                            <% } %>
+                        </div>
+                        <p class="text-gray-300 text-sm leading-relaxed">
+                          <%= comment.text %>
+                        </p>
+                      </div>
+                      <% }); %>
+                        <% } else { %>
+                          <div class="text-center py-10 text-gray-500">
+                            <i class="far fa-comment-dots text-4xl mb-3 opacity-50"></i>
+                            <p>No reviews yet. Be the first!</p>
+                          </div>
+                          <% } %>
+                </div>
+              </div>
+        </div>
+
       </main>
+
+        <script>
+          document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('rating-form');
+            if (form) {
+              const hiddenInput = document.getElementById('rating-value');
+              const stars = form.querySelectorAll('.rating-star');
+
+              function updateStars(selectedValue) {
+                stars.forEach(function (star) {
+                  const value = parseInt(star.getAttribute('data-value'), 10);
+                  if (value <= selectedValue) {
+                    star.classList.add('text-yellow-400');
+                    star.classList.remove('text-gray-600');
+                  } else {
+                    star.classList.add('text-gray-600');
+                    star.classList.remove('text-yellow-400');
+                  }
+                });
+              }
+
+              // Initialize from server value
+              if (hiddenInput && hiddenInput.value) {
+                updateStars(parseInt(hiddenInput.value));
+              }
+
+              stars.forEach(function (star) {
+                star.addEventListener('click', function () {
+                  const value = parseInt(star.getAttribute('data-value'), 10);
+                  if (isNaN(value)) return;
+                  if (hiddenInput) hiddenInput.value = value;
+                  updateStars(value);
+                  form.submit();
+                });
+              });
+            }
+          });
+        </script>
   </body>
-</html>
+
+  </html>

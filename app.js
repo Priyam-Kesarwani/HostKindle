@@ -58,8 +58,10 @@ const multerOptions = {
   storage, fileFilter
 };
 
-app.use(express.urlencoded());
-app.use(multer(multerOptions).single('photo'));
+// Increase body size limits to handle base64 images for description generation
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '10mb' }));
+// Multer middleware removed - file uploads are now handled in specific routes
 app.use(express.static(path.join(rootDir, 'public')))
 app.use("/uploads", express.static(path.join(rootDir, 'uploads')))
 app.use("/host/uploads", express.static(path.join(rootDir, 'uploads')))

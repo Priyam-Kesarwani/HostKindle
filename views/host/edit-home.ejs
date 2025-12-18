@@ -1,98 +1,308 @@
 <%- include('../partials/head') %>
-  <!-- Latest Font Awesome CDN -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   </head>
-  <body class="text-white bg-[#1A1A2E] min-h-screen">
+
+  <body
+    class="bg-base-100 text-base-content min-h-screen flex flex-col font-sans selection:bg-primary selection:text-white">
     <%- include('../partials/nav') %>
-    <main class="container mx-auto px-4 py-10 max-w-3xl">
-      <h1 class="text-3xl md:text-4xl text-center mt-1 mb-8 tracking-wide font-bold text-white"><%= editing ? "Edit" : "Register"%> Your Home</h1>
-      <form action="/host/<%= editing ? "edit-home" : "add-home"%>" method="POST" enctype="multipart/form-data" class="bg-gray-800 rounded-lg shadow-lg p-6 space-y-4">
-        <input type="hidden" name="id" value="<%= editing ? home._id : ''%>" />
-        <div>
-          <label for="houseName" class="block text-sm font-medium text-gray-300 mb-1">House Name</label>
-          <input
-            id="houseName"
-            type="text"
-            name="houseName"
-            value="<%= editing ? home.houseName : ''%>"
-            placeholder="Enter your House Name"
-            class="w-full px-4 py-2 bg-gray-900/60 border border-gray-700 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-          />
+
+      <main class="container mx-auto px-4 py-20 max-w-4xl animate-fade-in">
+        <div class="text-center mb-10">
+          <h1 class="text-4xl md:text-5xl font-display font-bold text-white mb-2">
+            <%= editing ? "Edit Your Listing" : "List Your Home" %>
+          </h1>
+          <p class="text-gray-400">Share your property with millions of travelers.</p>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-          <label for="price" class="block text-sm font-medium text-gray-300 mb-1">Price Per Month (Rs)</label>
-            <input
-              id="price"
-              type="text"
-              name="price"
-              value="<%= editing ? home.price : ''%>"
-              placeholder="e.g. 2500"
-              class="w-full px-4 py-2 bg-gray-900/60 border border-gray-700 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-            />
-          </div>
-          <div>
-            <label for="location" class="block text-sm font-medium text-gray-300 mb-1">Location</label>
-            <input
-              id="location"
-              type="text"
-              name="location"
-              value="<%= editing ? home.location : ''%>"
-              placeholder="City, Country"
-              class="w-full px-4 py-2 bg-gray-900/60 border border-gray-700 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-            />
-          </div>
+
+        <div
+          class="bg-neutral-900/50 backdrop-blur-xl border border-white/5 rounded-3xl p-8 md:p-10 shadow-2xl animate-slide-up">
+          <form action="/host/<%= editing ? 'edit-home' : 'add-home' %>" method="POST" enctype="multipart/form-data"
+            class="space-y-8">
+            <input type="hidden" name="id" value="<%= editing ? home._id : ''%>" />
+
+            <!-- House Name -->
+            <div class="space-y-2">
+              <label for="houseName" class="block text-sm font-medium text-gray-300">House Name</label>
+              <input id="houseName" type="text" name="houseName" value="<%= editing ? home.houseName : ''%>"
+                placeholder="e.g. Cozy Cottage in the Woods"
+                class="w-full px-5 py-3 bg-neutral border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                required />
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Price -->
+              <div class="space-y-2">
+                <label for="price" class="block text-sm font-medium text-gray-300">Price Per Month (Rs)</label>
+                <div class="relative">
+                  <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">₹</span>
+                  <input id="price" type="number" name="price" value="<%= editing ? home.price : ''%>"
+                    placeholder="25000"
+                    class="w-full pl-10 pr-5 py-3 bg-neutral border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                    required />
+                </div>
+              </div>
+
+              <!-- Location -->
+              <div class="space-y-2">
+                <label for="location" class="block text-sm font-medium text-gray-300">Location</label>
+                <div class="relative">
+                  <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"><i
+                      class="fas fa-map-marker-alt"></i></span>
+                  <input id="location" type="text" name="location" value="<%= editing ? home.location : ''%>"
+                    placeholder="City, Country"
+                    class="w-full pl-10 pr-5 py-3 bg-neutral border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                    required />
+                </div>
+              </div>
+            </div>
+
+            <!-- Photos -->
+            <div class="space-y-2">
+              <label for="photos" class="block text-sm font-medium text-gray-300">Photos</label>
+              <div
+                class="relative border-2 border-dashed border-white/10 rounded-xl p-8 text-center hover:border-primary/50 transition-colors bg-white/5">
+                <input id="photos" type="file" name="photos" accept="image/jpg, image/jpeg, image/png" multiple
+                  class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                <div class="flex flex-col items-center justify-center space-y-2 pointer-events-none">
+                  <div class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-primary mb-2">
+                    <i class="fas fa-cloud-upload-alt text-xl"></i>
+                  </div>
+                  <p class="text-white font-medium">Click to upload photos</p>
+                  <p class="text-xs text-gray-400">SVG, PNG, JPG (Multiple allowed)</p>
+                </div>
+              </div>
+              <p class="text-xs text-gray-500 ml-1">First photo will be the cover image.</p>
+
+              <% if (editing) { %>
+                <% let existingPhotos=[]; if (home.photos && Array.isArray(home.photos) && home.photos.length> 0) {
+                  existingPhotos = home.photos.filter(p => p && typeof p === 'string' && p.trim() !== '');
+                  } else if (home.photo && typeof home.photo === 'string' && home.photo.trim() !== '') {
+                  existingPhotos = [home.photo];
+                  }
+                  existingPhotos = existingPhotos.map(p => (/^https?:\/\//i.test(p) ? p : (p.startsWith('/') ? p : '/' +
+                  p)));
+                  %>
+                  <% if (existingPhotos.length> 0) { %>
+                    <div class="mt-4 bg-neutral border border-white/10 rounded-xl p-4">
+                      <div class="flex items-center justify-between mb-3">
+                        <span class="text-sm text-gray-300 font-medium">Existing photos</span>
+                        <span class="text-xs text-gray-500">Add more above; cover is first photo.</span>
+                      </div>
+                      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                        <% existingPhotos.forEach((p, idx)=> { %>
+                          <div class="relative rounded-lg overflow-hidden border border-white/10 bg-white/5">
+                            <img src="<%= p %>" alt="Photo <%= idx + 1 %>" class="w-full h-28 object-cover">
+                            <% if (idx===0) { %>
+                              <div class="absolute top-2 left-2 badge badge-primary text-[10px]">Cover</div>
+                              <% } %>
+                          </div>
+                          <% }); %>
+                      </div>
+                    </div>
+                    <% } %>
+                      <% } %>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
+              <!-- Furnishing -->
+              <div class="space-y-3">
+                <h3 class="text-sm font-medium text-gray-300">Furnishing</h3>
+                <div class="flex flex-wrap gap-3">
+                  <% const furnishingOptions=['Unfurnished', 'Semi Furnished' , 'Fully Furnished' ]; %>
+                    <% furnishingOptions.forEach(opt=> { %>
+                      <label class="group cursor-pointer">
+                        <input type="radio" name="furnished" value="<%= opt %>" class="peer sr-only" <%=editing && home
+                          && home.furnished===opt ? 'checked' : (!editing && opt==='Unfurnished' ? 'checked' : '' ) %>
+                        />
+                        <span
+                          class="inline-block px-4 py-2 rounded-lg bg-neutral border border-white/10 text-gray-400 peer-checked:bg-primary/20 peer-checked:border-primary peer-checked:text-primary transition-all text-sm group-hover:bg-white/5">
+                          <%= opt %>
+                        </span>
+                      </label>
+                      <% }) %>
+                </div>
+              </div>
+
+              <!-- Bedrooms -->
+              <div class="space-y-3">
+                <h3 class="text-sm font-medium text-gray-300">Configuration</h3>
+                <div class="flex flex-wrap gap-3">
+                  <% const bhkOptions=['1 BHK', '2 BHK' , '3 BHK' ]; %>
+                    <% bhkOptions.forEach(opt=> { %>
+                      <label class="group cursor-pointer">
+                        <input type="radio" name="bhk" value="<%= opt %>" class="peer sr-only" <%=editing && home &&
+                          home.bhk===opt ? 'checked' : '' %> />
+                        <span
+                          class="inline-block px-4 py-2 rounded-lg bg-neutral border border-white/10 text-gray-400 peer-checked:bg-secondary/20 peer-checked:border-secondary peer-checked:text-secondary transition-all text-sm group-hover:bg-white/5">
+                          <%= opt %>
+                        </span>
+                      </label>
+                      <% }) %>
+                </div>
+              </div>
+            </div>
+
+            <!-- Keywords -->
+            <div class="pt-4 space-y-3">
+              <h3 class="text-sm font-medium text-gray-300">Features</h3>
+              <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                <% const keywordOptions=[ "Newly constructed" , "Well maintained" , "Spacious rooms"
+                  , "Separate living area" , "Modular kitchen" , "Attached bathroom" , "Balcony available"
+                  , "24×7 water supply" , "Power backup" , "Lift available" , "Reserved parking" , "Wi-Fi ready"
+                  , "Air conditioned" , "Near metro/bus" , "Close to market" , "Gated society" , "Security available"
+                  , "Peaceful locality" , "Family preferred" , "Bachelor allowed" ]; const selectedKeywords=(editing &&
+                  home && Array.isArray(home.keywords)) ? home.keywords : []; %>
+                  <% keywordOptions.forEach((k)=> { %>
+                    <label class="group cursor-pointer">
+                      <input type="checkbox" name="keywords" value="<%= k %>" class="peer sr-only"
+                        <%=selectedKeywords.includes(k) ? 'checked' : '' %>
+                      />
+                      <span
+                        class="flex items-center gap-2 px-3 py-2 rounded-lg bg-neutral border border-white/10 text-gray-400 text-xs peer-checked:bg-white/10 peer-checked:border-white/20 peer-checked:text-white transition-all group-hover:bg-white/5">
+                        <i
+                          class="fas fa-check text-[10px] opacity-0 peer-checked:opacity-100 transition-opacity text-primary"></i>
+                        <%= k %>
+                      </span>
+                    </label>
+                    <% }) %>
+              </div>
+            </div>
+
+            <!-- Description -->
+            <div class="pt-6 space-y-2">
+              <div class="flex items-center justify-between">
+                <label for="description" class="block text-sm font-medium text-gray-300">Description</label>
+                <button type="button" id="generate-description-btn"
+                  class="flex items-center gap-2 text-xs px-3 py-1.5 rounded-lg bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white font-medium transition-all shadow-lg shadow-primary/20 disabled:opacity-50 disabled:shadow-none">
+                  <i class="fas fa-magic"></i> Generate with AI
+                </button>
+              </div>
+              <div class="relative">
+                <textarea id="description" name="description" placeholder="Describe what makes your home unique..."
+                  rows="6"
+                  class="w-full px-5 py-4 bg-neutral border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-none"><%= editing ? home.description : ''%></textarea>
+                <div id="ai-loading"
+                  class="absolute inset-0 bg-neutral/80 backdrop-blur-sm rounded-xl flex items-center justify-center hidden">
+                  <div class="flex flex-col items-center">
+                    <div class="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mb-2">
+                    </div>
+                    <span class="text-xs text-primary font-medium animate-pulse">Generating magic...</span>
+                  </div>
+                </div>
+              </div>
+              <p id="generate-description-status" class="text-xs text-red-400 hidden"></p>
+            </div>
+
+            <!-- Actions -->
+            <div class="pt-8 flex gap-4">
+              <a href="/host/host-home-list"
+                class="flex-1 py-3 px-6 rounded-xl border border-white/10 text-gray-300 hover:bg-white/5 hover:text-white text-center font-semibold transition-all">Cancel</a>
+              <button type="submit"
+                class="flex-1 bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white py-3 px-6 rounded-xl font-bold shadow-lg shadow-primary/25 transition-all hover:scale-[1.02] active:scale-[0.98]">
+                <%= editing ? 'Update Home' : 'Publish Listing' %>
+              </button>
+            </div>
+          </form>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label for="rating" class="block text-sm font-medium text-gray-300 mb-1">Rating</label>
-            <input
-              id="rating"
-              type="text"
-              name="rating"
-              value="<%= editing ? home.rating : ''%>"
-              placeholder="e.g. 4.7"
-              class="w-full px-4 py-2 bg-gray-900/60 border border-gray-700 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-            />
-          </div>
-          <div>
-            <label for="photo" class="block text-sm font-medium text-gray-300 mb-1">Photo</label>
-            <input
-              id="photo"
-              type="file"
-              name="photo"
-              accept="image/jpg, image/jpeg, image/png"
-              class="w-full px-4 py-2 bg-gray-900/60 border border-gray-700 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-            />
-          </div>
-        </div>
-        <div>
-          <label for="description" class="block text-sm font-medium text-gray-300 mb-1">Description</label>
-          <textarea
-            id="description"
-            name="description"
-            placeholder="Describe your home"
-            rows="5"
-            class="w-full px-4 py-2 bg-gray-900/60 border border-gray-700 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"><%= editing ? home.description : ''%></textarea>
-        </div>
-        <div class="flex items-center">
-          <input
-            type="checkbox"
-            id="furnished"
-            name="furnished"
-            <%= editing && home.furnished ? 'checked' : '' %>
-            class="w-4 h-4 text-violet-600 bg-gray-700 border-gray-600 rounded focus:ring-violet-500 focus:ring-2"
-          />
-          <label for="furnished" class="ml-2 text-sm font-medium text-gray-300">
-            Furnished
-          </label>
-        </div>
-        <div class="flex gap-3 pt-2">
-          <a href="/host/host-home-list" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-2 rounded-md font-semibold transition-all duration-300 text-center">Cancel</a>
-          <input type="submit" value="<%= editing ? 'Update Home' : 'Add Home' %>"
-            class="flex-1 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white py-2 rounded-md font-semibold transition-all duration-300 hover:shadow-lg shadow-violet-500/25 cursor-pointer" />
-        </div>
-      </form>
-    </main>
+      </main>
+
+      <script>
+        (function () {
+          const btn = document.getElementById('generate-description-btn');
+          const photosInput = document.getElementById('photos');
+          const descriptionEl = document.getElementById('description');
+          const statusEl = document.getElementById('generate-description-status');
+          const loadingEl = document.getElementById('ai-loading');
+          const homeId = <%= editing && home ? JSON.stringify(String(home._id)) : 'null' %>;
+
+
+
+          if (!btn || !descriptionEl) return;
+
+          function setStatus(message, isError) {
+            if (!statusEl) return;
+            statusEl.textContent = message || '';
+            statusEl.classList.toggle('hidden', !message);
+            statusEl.classList.toggle('text-red-400', !!isError);
+            statusEl.classList.toggle('text-green-400', !isError);
+          }
+
+          btn.addEventListener('click', function () {
+            // Gather keywords
+            const keywordEls = Array.from(document.querySelectorAll('input[name="keywords"]:checked'));
+            const keywords = keywordEls.map(el => el.value);
+
+            // Furnishing and BHK values
+            const furnishedEl = document.querySelector('input[name="furnished"]:checked');
+            const bhkEl = document.querySelector('input[name="bhk"]:checked');
+            const furnished = furnishedEl ? furnishedEl.value : undefined;
+            const bhk = bhkEl ? bhkEl.value : undefined;
+
+            // Prefer using selected file if provided
+            const files = photosInput ? photosInput.files : null;
+
+            btn.disabled = true;
+            loadingEl.classList.remove('hidden');
+            setStatus('');
+
+            function sendRequest(base64, mimeType) {
+              fetch('/host/generate-description', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: base64, mimeType, keywords, furnished, bhk, homeId })
+              })
+                .then(res => res.json())
+                .then(data => {
+                  if (data && data.description) {
+                    // Typewriter effect
+                    let i = 0;
+                    descriptionEl.value = '';
+                    const text = data.description;
+                    const speed = 10;
+                    function typeWriter() {
+                      if (i < text.length) {
+                        descriptionEl.value += text.charAt(i);
+                        i++;
+                        setTimeout(typeWriter, speed);
+                      }
+                    }
+                    typeWriter();
+
+                    setStatus('Description generated successfully!', false);
+                  } else {
+                    setStatus(data && data.error ? data.error : 'Failed to generate description.', true);
+                  }
+                })
+                .catch(err => {
+                  console.error('Error generating description:', err);
+                  setStatus('Error generating description. Please try again.', true);
+                })
+                .finally(() => {
+                  btn.disabled = false;
+                  loadingEl.classList.add('hidden');
+                });
+            }
+
+            if (files && files.length > 0) {
+              const file = files[0];
+              const reader = new FileReader();
+              reader.onload = function (e) {
+                const result = e.target.result;
+                const base64 = result.split(',')[1];
+                sendRequest(base64, file.type || 'image/jpeg');
+              };
+              reader.onerror = function () {
+                setStatus('Could not read the selected image file.', true);
+                btn.disabled = false;
+                loadingEl.classList.add('hidden');
+              };
+              reader.readAsDataURL(files[0]);
+            } else {
+              // No file selected; send text-only context
+              sendRequest(undefined, undefined);
+            }
+          });
+        })();
+      </script>
   </body>
-</html>
+
+  </html>
