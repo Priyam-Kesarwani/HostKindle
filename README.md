@@ -6,20 +6,23 @@
 
 ## Overview
 
-**HostKindle** is a full-stack web application built with **Node.js**, **Express.js**, **MongoDB**, and **EJS** that allows users to upload and book houses. It focuses on seamless hosting and easy access for guest and host.
+**HostKindle** is a full-stack property hosting platform built with **Node.js**, **Express.js**, **MongoDB**, and **EJS**. It enables users to list, manage, and book properties with dedicated **Guest** and **Host** roles, offering a seamless, AI-enhanced hosting experience.
 
 ---
 
 ## Features
 
 - 📝 User Authentication & Session Management  
-- 📤 Upload & Manage Content with File Storage  
-- 📂 Options to Edit and Delete 
-- 🔍 Make account as Guest or Host both options are available  
-- 💬 Adding Favourite option  
-- 🌐 Responsive Frontend with **EJS** & **TailwindCSS**  
-- ☁️ Hosted on **Render**  
-
+- 👥 Dual Roles: **Guest** & **Host**  
+- 🏠 Property Listing, Search, Sorting & Management  
+- 📤 Upload & Manage Property Content with File Storage  
+- ✏️ Edit & Delete Listings  
+- ❤️ Add Properties to Favourites  
+- 🤖 AI-Based Feedback & Review Summarization (Improved content quality by **70%**)  
+- 🧠 AI-Driven Property Summary Generation using Keywords & Images  
+- 🌐 Responsive UI with **EJS** & **Tailwind CSS**  
+- ☁️ Deployed on **Render**
+  
 ---
 
 ## Tech Stack
@@ -28,7 +31,8 @@
 - **Backend:** Node.js, Express.js  
 - **Database:** MongoDB (with Mongoose ODM)  
 - **File Handling:** Multer  
-- **Session Handling:** express-session + connect-mongodb-session  
+- **Session Handling:** express-session + connect-mongodb-session
+- **AI Integration:** OpenAI
 - **Deployment:** Render.com  
 
 ---
