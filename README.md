@@ -32,7 +32,7 @@
 - **Database:** MongoDB (with Mongoose ODM)  
 - **File Handling:** Multer  
 - **Session Handling:** express-session + connect-mongodb-session
-- **AI Integration:** OpenAI
+- **AI Integration:** Gemini
 - **Deployment:** Render.com  
 
 ---
