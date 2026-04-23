@@ -29,6 +29,11 @@
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-10px); }
   }
+  @keyframes blob {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -50px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.9); }
+  }
 }
 
 /* Default = DARK theme palette (JS toggles light via data-theme="light") */
@@ -88,4 +93,87 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Calistoga', serif;
+}
+
+/* Animation utility classes */
+.animate-blob {
+  animation: blob 7s infinite;
+}
+
+/* Responsive filter bar styles */
+@media (max-width: 768px) {
+  .filter-horizontal-container {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  
+  .filter-horizontal-container > div {
+    width: 100% !important;
+    max-width: none !important;
+  }
+  
+  .filter-date-group {
+    flex-direction: column !important;
+    gap: 1rem !important;
+  }
+  
+  .filter-date-group > div {
+    width: 100% !important;
+  }
+  
+  .radius-slider-container input[type="range"] {
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .filter-horizontal-container {
+    gap: 1rem !important;
+  }
+  
+  .filter-horizontal-container > div {
+    padding: 1rem !important;
+  }
+}
+
+/* Custom range slider styling */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-track {
+  background: rgba(255, 255, 255, 0.2);
+  height: 6px;
+  border-radius: 3px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  background: hsl(var(--primary));
+  height: 18px;
+  width: 18px;
+  border-radius: 50%;
+  margin-top: -6px;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+input[type="range"]::-moz-range-track {
+  background: rgba(255, 255, 255, 0.2);
+  height: 6px;
+  border-radius: 3px;
+}
+
+input[type="range"]::-moz-range-thumb {
+  background: hsl(var(--primary));
+  height: 18px;
+  width: 18px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  cursor: pointer;
 }

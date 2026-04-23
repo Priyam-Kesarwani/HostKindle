@@ -233,7 +233,7 @@ Do not mention that you are looking at a photo.
   }
 }
 
-async function generateDescriptionFromContext(base64Data, mimeType, keywords = [], furnished, bhk) {
+async function generateDescriptionFromContext(base64Data, mimeType, keywords = [], furnished, bhk, totalFloors, propertyAge, propertyType, facingDirection) {
   try {
     if (!GEMINI_API_KEY) {
       console.warn('GEMINI_API_KEY is not set – skipping description generation.');
@@ -250,6 +250,18 @@ async function generateDescriptionFromContext(base64Data, mimeType, keywords = [
     }
     if (bhk) {
       prompt += `Bedrooms: ${String(bhk)}.\n`;
+    }
+    if (totalFloors) {
+      prompt += `Total floors: ${String(totalFloors)}.\n`;
+    }
+    if (propertyAge) {
+      prompt += `Property age: ${String(propertyAge)} years.\n`;
+    }
+    if (propertyType) {
+      prompt += `Property type: ${String(propertyType)}.\n`;
+    }
+    if (facingDirection) {
+      prompt += `Facing direction: ${String(facingDirection)}.\n`;
     }
     if (kwArray.length > 0) {
       prompt += `Keywords: ${kwArray.join(', ')}.\n`;

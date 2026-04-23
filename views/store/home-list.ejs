@@ -1,4 +1,5 @@
 <%- include('../partials/head') %>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   </head>
 
   <body class="bg-base-100 text-base-content min-h-screen">
@@ -6,24 +7,47 @@
 
       <main class="container mx-auto px-4 py-10 max-w-6xl">
         <h2 class="text-3xl md:text-4xl lg:text-5xl text-center mt-1 mb-8 tracking-wide font-bold text-base-content">
-          Registered Homes Across Top Locations
+          Find Your Perfect Stay Near You
         </h2>
 
-        <div class="flex items-center justify-end mb-4">
+        <div class="flex items-center justify-end mb-4 gap-3 flex-wrap">
+          <form action="/homes" method="GET" class="flex items-center gap-2">
+            <input type="date" id="startDateFilter" name="startDate" value="<%= filterDates && filterDates.startDate ? filterDates.startDate : '' %>" class="input input-sm input-bordered" />
+            <input type="date" id="endDateFilter" name="endDate" value="<%= filterDates && filterDates.endDate ? filterDates.endDate : '' %>" class="input input-sm input-bordered" />
+            <input type="hidden" name="latitude" id="latitude" value="<%= geoFilter && geoFilter.latitude ? geoFilter.latitude : '' %>" />
+            <input type="hidden" name="longitude" id="longitude" value="<%= geoFilter && geoFilter.longitude ? geoFilter.longitude : '' %>" />
+            <label class="text-xs text-gray-500">Radius</label>
+            <input type="range" name="radiusKm" id="radiusKm" min="1" max="15" value="<%= geoFilter && geoFilter.radiusKm ? geoFilter.radiusKm : '5' %>" />
+            <span id="radiusValue" class="text-xs"><%= geoFilter && geoFilter.radiusKm ? geoFilter.radiusKm : '5' %> km</span>
+            <button class="btn btn-sm btn-primary">Apply</button>
+            <a href="/homes" class="btn btn-sm btn-ghost">Back</a>
+          </form>
           <label for="sort-select" class="text-sm text-gray-300 mr-2">Sort by:</label>
           <select id="sort-select" class="bg-gray-700 text-white rounded-md px-3 py-1 text-sm">
             <option value="price|asc">Price: Low → High</option>
             <option value="price|desc">Price: High → Low</option>
             <option value="rating|desc">Customer rating</option>
+            <option value="distance|asc">Nearest distance</option>
           </select>
+        </div>
+
+        <div class="mb-5 bg-base-200 border border-base-300 rounded-xl p-3">
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-sm">Point on map to search within 1-15 km</p>
+            <div class="flex items-center gap-2">
+              <button id="clear-distance-filter" type="button" class="btn btn-xs btn-ghost">Remove distance</button>
+              <button id="use-my-location" type="button" class="btn btn-xs btn-outline">Use my location</button>
+            </div>
+          </div>
+          <div id="search-map" class="w-full h-56 rounded-lg"></div>
         </div>
         <div id="homes-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           <% registeredHomes.forEach((home, index)=> { %>
             <div role="link" tabindex="0" title="View details"
               class="home-card group bg-[#E4ECFF] text-base-content dark:bg-[#1A1A2E] border border-[#C7D2FE] dark:border-gray-700 rounded-2xl overflow-hidden hover:border-primary/40 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/10 cursor-pointer flex flex-col h-full animate-slide-up"
-              style="animation-delay: <%= index * 100 %>ms;"
-              data-price="<%= Number(String(home.price || '').replace(/[^0-9.-]/g, '') ) || 0 %>"
+              data-price="<%= Number(home.price) || 0 %>"
               data-rating="<%= Number(home.rating) || 0 %>"
+              data-distance="<%= typeof home.distanceKm === 'number' ? home.distanceKm : 999999 %>"
               onclick="if (!event.target.closest('form')) { window.location='/homes/<%= home._id %>'; }"
               onkeydown="if ((event.key === 'Enter' || event.key === ' ') && !event.target.closest('form')) { window.location='/homes/<%= home._id %>'; }">
               <% 
@@ -71,6 +95,14 @@
                       <%= home.location %>
                     </span>
                   </div>
+                  <% if (geoFilter && geoFilter.latitude && geoFilter.longitude && typeof home.distanceKm === 'number') { %>
+                    <div class="mb-3">
+                      <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-primary/15 text-primary text-xs font-semibold">
+                        <i class="fas fa-location-arrow mr-1"></i>
+                        <%= home.distanceKm.toFixed(1) %> km away
+                      </span>
+                    </div>
+                  <% } %>
 
                   <p class="text-gray-700 dark:text-gray-500 text-sm line-clamp-2 mb-4 flex-grow">
                     <%= home.description %>
@@ -85,12 +117,10 @@
                     </div>
 
                     <% if (isLoggedIn && user && String(user._id) !==String(home.owner)) { %>
-                      <form action="/homes/<%= home._id %>/book" method="POST" onsubmit="event.stopPropagation();">
-                        <button type="submit"
-                          class="bg-base-200 hover:bg-primary hover:text-white text-gray-700 dark:text-gray-300 p-2 rounded-lg transition-all duration-300 border border-base-200 dark:border-white/10 group-hover:border-primary/50">
-                          <i class="fas fa-arrow-right"></i>
-                        </button>
-                      </form>
+                      <a href="/homes/<%= home._id %>"
+                        class="bg-base-200 hover:bg-primary hover:text-white text-gray-700 dark:text-gray-300 p-2 rounded-lg transition-all duration-300 border border-base-200 dark:border-white/10 group-hover:border-primary/50">
+                        <i class="fas fa-arrow-right"></i>
+                      </a>
                       <% } else { %>
                         <div class="text-xs text-gray-500 italic">Login to book</div>
                         <% } %>
@@ -100,8 +130,80 @@
             <% }) %>
         </div>
 
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
         <script>
           (function () {
+            const latInput = document.getElementById('latitude');
+            const lngInput = document.getElementById('longitude');
+            const radiusInput = document.getElementById('radiusKm');
+            const radiusValue = document.getElementById('radiusValue');
+            const useMyLocationBtn = document.getElementById('use-my-location');
+            const clearDistanceBtn = document.getElementById('clear-distance-filter');
+            const startDateFilter = document.getElementById('startDateFilter');
+            const endDateFilter = document.getElementById('endDateFilter');
+            const mapEl = document.getElementById('search-map');
+            const localToday = new Date(Date.now() - (new Date().getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+
+            if (startDateFilter && !startDateFilter.value) startDateFilter.value = localToday;
+            if (startDateFilter) startDateFilter.min = localToday;
+            if (endDateFilter && startDateFilter && startDateFilter.value) endDateFilter.min = startDateFilter.value;
+            if (startDateFilter && endDateFilter) {
+              startDateFilter.addEventListener('change', function () {
+                endDateFilter.min = startDateFilter.value || localToday;
+                if (endDateFilter.value && endDateFilter.value < (startDateFilter.value || localToday)) {
+                  endDateFilter.value = startDateFilter.value || localToday;
+                }
+              });
+            }
+
+            if (mapEl && latInput && lngInput) {
+              const initialLat = parseFloat(latInput.value) || 28.6139;
+              const initialLng = parseFloat(lngInput.value) || 77.209;
+              const map = L.map(mapEl).setView([initialLat, initialLng], 12);
+              L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap'
+              }).addTo(map);
+
+              let marker = null;
+              let circle = null;
+              const draw = (lat, lng) => {
+                if (!marker) marker = L.marker([lat, lng]).addTo(map);
+                marker.setLatLng([lat, lng]);
+                const r = (parseInt(radiusInput.value || '5', 10) || 5) * 1000;
+                if (!circle) circle = L.circle([lat, lng], { radius: r }).addTo(map);
+                circle.setLatLng([lat, lng]);
+                circle.setRadius(r);
+                latInput.value = String(lat);
+                lngInput.value = String(lng);
+              };
+              if (latInput.value && lngInput.value) draw(initialLat, initialLng);
+              map.on('click', (e) => draw(e.latlng.lat, e.latlng.lng));
+
+              radiusInput?.addEventListener('input', () => {
+                if (radiusValue) radiusValue.textContent = `${radiusInput.value} km`;
+                if (circle) circle.setRadius((parseInt(radiusInput.value, 10) || 5) * 1000);
+              });
+
+              useMyLocationBtn?.addEventListener('click', () => {
+                if (!navigator.geolocation) return;
+                navigator.geolocation.getCurrentPosition((pos) => {
+                  const lat = pos.coords.latitude;
+                  const lng = pos.coords.longitude;
+                  map.setView([lat, lng], 13);
+                  draw(lat, lng);
+                });
+              });
+
+              if (clearDistanceBtn) {
+                clearDistanceBtn.addEventListener('click', function () {
+                  latInput.value = '';
+                  lngInput.value = '';
+                  window.location.href = '/homes';
+                });
+              }
+            }
+
             const select = document.getElementById('sort-select');
             const container = document.getElementById('homes-grid');
             if (!select || !container) return;

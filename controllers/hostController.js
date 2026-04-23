@@ -2,6 +2,7 @@ const Home = require("../models/home");
 const mongoose = require("mongoose");
 const { generateDescriptionFromImageData, generateDescriptionFromContext } = require("../utils/gemini");
 const { uploadBuffer } = require("../utils/cloudinary");
+const { geocodeLocation } = require("../utils/geocode");
 
 // Helper to get a safe Cloudinary URL from an upload result
 const getSecureUrl = (result) => (result && (result.secure_url || result.url) ? (result.secure_url || result.url) : null);
@@ -54,7 +55,27 @@ exports.getHostHomes = (req, res, next) => {
 
 exports.postAddHome = async (req, res, next) => {
   // Rating is not set by hosts. It will be computed from user ratings on the details page.
-  const { houseName, price, location, description, furnished, bhk, keywords } = req.body;
+  const {
+    houseName,
+    price,
+    location,
+    description,
+    furnished,
+    bhk,
+    keywords,
+    latitude,
+    longitude,
+    buildingNo,
+    street,
+    landmark,
+    city,
+    state,
+    phoneNumber,
+    totalFloors,
+    propertyAge,
+    facingDirection,
+    propertyType,
+  } = req.body;
   console.log(houseName, price, location, description, furnished, bhk);
   console.log("Files:", req.files);
 
@@ -94,11 +115,32 @@ exports.postAddHome = async (req, res, next) => {
   console.log("Saving home with photos:", photos);
   console.log("Number of photos:", photos.length);
 
+  let lat = Number.parseFloat(latitude);
+  let lng = Number.parseFloat(longitude);
+  if (Number.isNaN(lat) || Number.isNaN(lng)) {
+    const geocoded = await geocodeLocation(location);
+    if (geocoded) {
+      lat = geocoded.lat;
+      lng = geocoded.lng;
+    }
+  }
+
+  const address = {
+    buildingNo: typeof buildingNo === "string" ? buildingNo.trim() : "",
+    street: typeof street === "string" ? street.trim() : "",
+    locality: typeof location === "string" ? location.trim() : "",
+    landmark: typeof landmark === "string" ? landmark.trim() : "",
+    city: typeof city === "string" ? city.trim() : "",
+    state: typeof state === "string" ? state.trim() : "",
+  };
+  const locationLabel = [address.city, address.state].filter(Boolean).join(", ") || address.locality || location;
+
   const home = new Home({
     owner: req.session.user._id,
     houseName,
     price,
-    location,
+    location: locationLabel,
+    address,
     // rating left to default (computed from user ratings)
     photo, // Main photo for backward compatibility
     photos, // Array of all photos
@@ -110,6 +152,15 @@ exports.postAddHome = async (req, res, next) => {
       : (typeof keywords === 'string'
           ? keywords.split(',').map(k => k.trim()).filter(Boolean).filter(k => k !== '1 BHK / 2 BHK / 3 BHK')
           : []),
+    phoneNumber: typeof phoneNumber === 'string' ? phoneNumber.trim() : '',
+    totalFloors: Number.isInteger(Number(totalFloors)) && Number(totalFloors) > 0 ? Number(totalFloors) : 1,
+    facingDirection: ['East', 'West', 'North', 'South', 'North-East', 'North-West', 'South-East', 'South-West'].includes(facingDirection) ? facingDirection : 'East',
+    propertyAge: ['1','2','3','4','5','6','7','8','9','10+'].includes(propertyAge) ? propertyAge : '1',
+    propertyType: ['Apartment', 'Independent house', 'Villa', 'Studio'].includes(propertyType) ? propertyType : 'Apartment',
+    coordinates:
+      !Number.isNaN(lat) && !Number.isNaN(lng)
+        ? { type: "Point", coordinates: [lng, lat] }
+        : undefined,
   });
   home.save().then((savedHome) => {
     console.log("Home Saved successfully");
@@ -131,7 +182,7 @@ function furnishingIsValid(val) {
 
 exports.postGenerateDescription = async (req, res, next) => {
   try {
-    let { image, mimeType, keywords, furnished, bhk, homeId } = req.body;
+    let { image, mimeType, keywords, furnished, bhk, totalFloors, propertyAge, propertyType, facingDirection, homeId } = req.body;
 
     // keywords may be sent as array or CSV string
     let parsedKeywords = [];
@@ -141,10 +192,20 @@ exports.postGenerateDescription = async (req, res, next) => {
     // If image isn't provided but a homeId is, we *could* try fetching an existing photo.
     // However, to keep this endpoint stable across Node versions (where global fetch may not exist),
     // we fall back to text-only generation when no local image/file is supplied.
-    // The Gemini helper can still generate a useful description from context (keywords, furnished, bhk).
+    // The Gemini helper can still generate a useful description from context (keywords, furnished, bhk, totalFloors, propertyType, facingDirection).
 
     // Now call the generator with whatever context (maybe image or text-only)
-    const description = await generateDescriptionFromContext(image, mimeType || 'image/jpeg', parsedKeywords, furnished, bhk);
+    const description = await generateDescriptionFromContext(
+      image,
+      mimeType || 'image/jpeg',
+      parsedKeywords,
+      furnished,
+      bhk,
+      totalFloors,
+      propertyAge,
+      propertyType,
+      facingDirection
+    );
 
     if (!description) {
       return res.status(500).json({ error: "Failed to generate description" });
@@ -158,8 +219,28 @@ exports.postGenerateDescription = async (req, res, next) => {
 };
 
 exports.postEditHome = async (req, res, next) => {
-  const { id, houseName, price, location, description, furnished, keywords } =
-    req.body;
+  const {
+    id,
+    houseName,
+    price,
+    location,
+    description,
+    furnished,
+    keywords,
+    latitude,
+    longitude,
+    buildingNo,
+    street,
+    landmark,
+    city,
+    state,
+    removePhotos,
+    phoneNumber,
+    totalFloors,
+    propertyAge,
+    facingDirection,
+    propertyType,
+  } = req.body;
   
   console.log("Edit Home - ID:", id);
   console.log("Edit Home - Body:", req.body);
@@ -185,7 +266,29 @@ exports.postEditHome = async (req, res, next) => {
     }
       home.houseName = houseName;
       home.price = price;
-      home.location = location;
+      const address = {
+        buildingNo: typeof buildingNo === "string" ? buildingNo.trim() : "",
+        street: typeof street === "string" ? street.trim() : "",
+        locality: typeof location === "string" ? location.trim() : "",
+        landmark: typeof landmark === "string" ? landmark.trim() : "",
+        city: typeof city === "string" ? city.trim() : "",
+        state: typeof state === "string" ? state.trim() : "",
+      };
+      const locationLabel = [address.city, address.state].filter(Boolean).join(", ") || address.locality || location;
+      home.location = locationLabel;
+      home.address = address;
+      let lat = Number.parseFloat(latitude);
+      let lng = Number.parseFloat(longitude);
+      if (Number.isNaN(lat) || Number.isNaN(lng)) {
+        const geocoded = await geocodeLocation(location);
+        if (geocoded) {
+          lat = geocoded.lat;
+          lng = geocoded.lng;
+        }
+      }
+      if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
+        home.coordinates = { type: "Point", coordinates: [lng, lat] };
+      }
       // Keep existing rating unchanged; users set ratings from the details page
       home.description = description;
       home.furnished = (typeof furnished === 'string' && furnishingIsValid(furnished)) ? String(furnished) : 'Unfurnished';
@@ -196,22 +299,41 @@ exports.postEditHome = async (req, res, next) => {
         home.keywords = keywords.split(',').map(k => k.trim()).filter(Boolean).filter(k => k !== '1 BHK / 2 BHK / 3 BHK');
       }
 
+      // Update new fields
+      home.phoneNumber = typeof phoneNumber === 'string' ? phoneNumber.trim() : '';
+      home.totalFloors = Number.isInteger(Number(totalFloors)) && Number(totalFloors) > 0 ? Number(totalFloors) : 1;
+      home.propertyAge = ['1','2','3','4','5','6','7','8','9','10+'].includes(propertyAge) ? propertyAge : '1';
+      home.facingDirection = ['East', 'West', 'North', 'South', 'North-East', 'North-West', 'South-East', 'South-West'].includes(facingDirection) ? facingDirection : 'East';
+      home.propertyType = ['Apartment', 'Independent house', 'Villa', 'Studio'].includes(propertyType) ? propertyType : 'Apartment';
+
       // Handle multiple photo uploads
+      const removeList = Array.isArray(removePhotos)
+        ? removePhotos
+        : typeof removePhotos === "string" && removePhotos.trim() !== ""
+        ? [removePhotos]
+        : [];
+      if (removeList.length > 0) {
+        const existing = Array.isArray(home.photos) ? home.photos : [];
+        home.photos = existing.filter((photoUrl) => !removeList.includes(photoUrl));
+      }
+
       if (req.files && req.files.length > 0) {
-        // Upload new photos to Cloudinary and replace URLs
+        // Upload new photos to Cloudinary and append URLs (don't replace existing)
         try {
           const uploads = await Promise.all(
             req.files.map((file) => uploadBuffer(file.buffer, { folder: 'hostkindle/homes' }))
           );
           const newPhotos = uploads.map(getSecureUrl).filter(Boolean);
           if (newPhotos.length > 0) {
-            home.photos = newPhotos;
-            home.photo = newPhotos[0];
+            const currentPhotos = Array.isArray(home.photos) ? home.photos : [];
+            home.photos = [...currentPhotos, ...newPhotos];
           }
         } catch (err) {
           console.error("Error uploading edited photos to Cloudinary:", err);
         }
       }
+      if (!Array.isArray(home.photos)) home.photos = [];
+      home.photo = home.photos.length > 0 ? home.photos[0] : undefined;
 
       await home.save();
       console.log("Home updated ", home._id);

@@ -18,6 +18,25 @@ const homeSchema = mongoose.Schema({
     type: String,
     required: true,
   },
+  address: {
+    buildingNo: { type: String, default: "" },
+    street: { type: String, default: "" },
+    locality: { type: String, default: "" },
+    landmark: { type: String, default: "" },
+    city: { type: String, default: "" },
+    state: { type: String, default: "" },
+  },
+  coordinates: {
+    type: {
+      type: String,
+      enum: ['Point'],
+      default: 'Point',
+    },
+    coordinates: {
+      type: [Number], // [lng, lat]
+      default: undefined,
+    },
+  },
   rating: {
     type: Number,
     default: 0,
@@ -45,7 +64,33 @@ const homeSchema = mongoose.Schema({
     type: [String],
     default: [],
   },
+  phoneNumber: {
+    type: String,
+    default: "",
+  },
+  totalFloors: {
+    type: Number,
+    min: 1,
+    default: 1,
+  },
+  facingDirection: {
+    type: String,
+    enum: ['East', 'West', 'North', 'South', 'North-East', 'North-West', 'South-East', 'South-West'],
+    default: 'East',
+  },
+  propertyAge: {
+    type: String,
+    enum: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10+'],
+    default: '1',
+  },
+  propertyType: {
+    type: String,
+    enum: ['Apartment', 'Independent house', 'Villa', 'Studio'],
+    default: 'Apartment',
+  },
 });
+
+homeSchema.index({ coordinates: "2dsphere" });
 
 // homeSchema.pre('findOneAndDelete', async function(next) {
 //   console.log('Came to pre hook while deleting a home');

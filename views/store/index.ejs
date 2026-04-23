@@ -1,4 +1,5 @@
 <%- include('../partials/head') %>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   </head>
 
   <body
@@ -6,98 +7,180 @@
     <%- include('../partials/nav') %>
 
       <!-- Hero Section -->
-      <header class="relative overflow-hidden py-24 px-4 text-center">
-        <!-- Background Elements -->
-        <div class="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 opacity-20">
-          <div
-            class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary blur-[120px] animate-float">
-          </div>
-          <div
-            class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-secondary blur-[120px] animate-float"
-            style="animation-delay: 1.5s;"></div>
+      <header class="relative overflow-hidden bg-gradient-to-br from-primary/10 via-secondary/5 to-accent/10 py-16 md:py-24 px-4">
+        <!-- Animated background elements -->
+        <div class="absolute inset-0 overflow-hidden">
+          <div class="absolute top-0 left-1/4 w-96 h-96 bg-primary/15 rounded-full blur-3xl animate-blob"></div>
+          <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-secondary/15 rounded-full blur-3xl animate-blob" style="animation-delay: 2s;"></div>
+          <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-accent/10 rounded-full blur-3xl animate-blob" style="animation-delay: 4s;"></div>
         </div>
 
-        <div class="relative z-10 max-w-4xl mx-auto space-y-8 animate-fade-in">
-          <h1 class="text-5xl md:text-7xl font-display font-extrabold leading-tight">
-            <span class="text-base-content">
-              Handpicked Stays
-            </span><br>
-            <span class="bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
-              Unforgettable Moments
-            </span>
-          </h1>
-          
-          <div class="relative min-h-[3.5rem] flex justify-center">
-            <style>
-              @keyframes cursorBlink {
-
-                0%,
-                100% {
-                  opacity: 1;
-                }
-
-                50% {
-                  opacity: 0;
-                }
-              }
-
-              .typewriter-cursor {
-                animation: cursorBlink 1.2s step-end infinite;
-              }
-
-              .typing .typewriter-cursor {
-                opacity: 1;
-                animation: none;
-              }
-            </style>
-            <p id="typewriter-wrapper" class="text-xl md:text-2xl text-gray-700 dark:text-gray-300 max-w-2xl mx-auto font-light">
-              <span id="hero-typewriter"></span><span
-                class="typewriter-cursor inline-block w-[3px] h-5 md:h-7 bg-gradient-to-b from-primary to-secondary ml-1 align-middle rounded-full mb-1 shadow-[0_0_10px_rgba(var(--p),0.5)]"></span>
+        <div class="relative z-10 max-w-7xl mx-auto">
+          <!-- Main Hero Heading -->
+          <div class="text-center space-y-8 mb-16 animate-fade-in">
+            <h1 class="text-5xl md:text-6xl lg:text-7xl font-black text-white leading-tight tracking-tight">
+              <span class="block bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent animate-pulse">
+                Find Your Perfect Stay
+              </span>
+              <span class="block text-3xl md:text-4xl lg:text-5xl mt-4 text-white/90 font-bold">
+                Near You
+              </span>
+            </h1>
+            <p class="text-xl md:text-2xl text-gray-200 max-w-3xl mx-auto leading-relaxed font-light">
+              Discover unique homes and immersive experiences in destinations you love
             </p>
           </div>
-          <script>
-            (function () {
-              const text = "Discover and book unique homes and immersive experiences in destinations you love.";
-              const el = document.getElementById('hero-typewriter');
-              const wrapper = document.getElementById('typewriter-wrapper');
-              if (!el || !wrapper) return;
 
-              let i = 0;
-              wrapper.classList.add('typing');
+          <!-- Filters Section -->
+          <div class="bg-white/10 backdrop-blur-2xl border border-white/20 rounded-3xl p-8 shadow-2xl">
+            <form action="/homes" method="GET" class="space-y-8">
+              <!-- Clean Horizontal Filter Bar -->
+              <div class="filter-horizontal-container flex flex-wrap items-center gap-6 justify-center">
+                <!-- Date Pickers Group -->
+                <div class="filter-date-group flex items-center gap-4 bg-white/5 backdrop-blur-lg rounded-2xl p-4 border border-white/10">
+                  <div class="space-y-1">
+                    <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider">
+                      <i class="fas fa-calendar-check mr-1 text-primary"></i>Check-in
+                    </label>
+                    <input 
+                      type="date" 
+                      name="startDate" 
+                      id="startDate"
+                      value="<%= filterDates && filterDates.startDate ? filterDates.startDate : '' %>"
+                      class="px-4 py-2.5 bg-neutral-800/60 border border-white/20 rounded-xl text-white text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                    />
+                  </div>
+                  
+                  <div class="text-white/40 text-xl">→</div>
+                  
+                  <div class="space-y-1">
+                    <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider">
+                      <i class="fas fa-calendar-times mr-1 text-secondary"></i>Check-out
+                    </label>
+                    <input 
+                      type="date" 
+                      name="endDate" 
+                      id="endDate"
+                      value="<%= filterDates && filterDates.endDate ? filterDates.endDate : '' %>"
+                      class="px-4 py-2.5 bg-neutral-800/60 border border-white/20 rounded-xl text-white text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                    />
+                  </div>
+                </div>
 
-              function type() {
-                if (i < text.length) {
-                  el.textContent += text.charAt(i);
-                  i++;
-                  // Professional typing cadence with slight variance
-                  setTimeout(type, 30 + Math.random() * 40);
-                } else {
-                  wrapper.classList.remove('typing');
-                }
-              }
+                <!-- Location Input -->
+                <div class="flex items-center gap-3 bg-white/5 backdrop-blur-lg rounded-2xl p-4 border border-white/10">
+                  <div class="space-y-1">
+                    <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider">
+                      <i class="fas fa-map-pin mr-1 text-accent"></i>Location
+                    </label>
+                    <div class="flex items-center gap-2">
+                      <input 
+                        type="text" 
+                        name="location" 
+                        placeholder="Enter location"
+                        class="px-4 py-2.5 bg-neutral-800/60 border border-white/20 rounded-xl text-white text-sm placeholder-gray-400 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                      />
+                      <button 
+                        type="button" 
+                        id="use-my-location" 
+                        class="px-3 py-2.5 bg-primary/20 hover:bg-primary/30 border border-primary/30 text-primary rounded-xl text-sm font-medium transition-all"
+                      >
+                        <i class="fas fa-location-crosshairs"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
 
-              // Smooth start delay
-              setTimeout(type, 800);
-            })();
-          </script>
+                <!-- Radius Slider -->
+                <div class="radius-slider-container flex items-center gap-3 bg-white/5 backdrop-blur-lg rounded-2xl p-4 border border-white/10">
+                  <div class="space-y-1">
+                    <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider">
+                      <i class="fas fa-ruler mr-1 text-info"></i>Radius
+                    </label>
+                    <div class="flex items-center gap-3">
+                      <input 
+                        type="range" 
+                        name="radiusKm" 
+                        id="radiusKm" 
+                        min="1" 
+                        max="15" 
+                        value="<%= geoFilter && geoFilter.radiusKm ? geoFilter.radiusKm : '5' %>"
+                        class="w-24 h-2 bg-white/20 rounded-lg appearance-none cursor-pointer accent-primary"
+                      />
+                      <span id="radiusValue" class="text-sm font-bold text-primary bg-primary/20 px-3 py-1 rounded-lg min-w-fit">
+                        <%= geoFilter && geoFilter.radiusKm ? geoFilter.radiusKm : '5' %> km
+                      </span>
+                    </div>
+                  </div>
+                </div>
 
-          <!-- Search Bar -->
-          <div class="max-w-3xl mx-auto mt-12 relative group">
-            <div
-              class="absolute -inset-1 bg-gradient-to-r from-primary to-secondary rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-300">
-            </div>
-            <form action="/search" method="POST"
-              class="relative bg-neutral-900/90 backdrop-blur-xl border border-white/10 rounded-2xl p-2 flex flex-col md:flex-row shadow-2xl">
-              <div class="flex-1 flex items-center px-6 py-3 md:border-r border-white/5">
-                <i class="fas fa-search text-gray-400 mr-4 text-lg"></i>
-                <input type="text" name="search" placeholder="Search for cities, vibe, or properties..."
-                  class="w-full bg-transparent text-white placeholder-gray-500 outline-none text-lg"
-                  value="<%= searchQuery ? searchQuery : '' %>">
+                <!-- Sort Dropdown -->
+                <div class="flex items-center gap-3 bg-white/5 backdrop-blur-lg rounded-2xl p-4 border border-white/10">
+                  <div class="space-y-1">
+                    <label for="sort-select" class="block text-xs font-semibold text-gray-300 uppercase tracking-wider">
+                      <i class="fas fa-arrow-down-up mr-1 text-warning"></i>Sort
+                    </label>
+                    <div class="relative">
+                      <select 
+                        id="sort-select"
+                        name="sortBy"
+                        class="px-4 py-2.5 bg-neutral-800/60 border border-white/20 rounded-xl text-white text-sm appearance-none cursor-pointer focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all pr-10"
+                      >
+                        <option value="">All Results</option>
+                        <option value="price|asc">Price: Low → High</option>
+                        <option value="price|desc">Price: High → Low</option>
+                        <option value="rating|desc">Top Rated</option>
+                        <option value="distance|asc">Nearest First</option>
+                      </select>
+                      <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-xs"></i>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <button type="submit"
-                class="m-1 bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white px-8 py-3 rounded-xl font-bold transition-all duration-300 shadow-lg shadow-primary/25 hover:scale-105 active:scale-95">
-                Search
-              </button>
+
+              <!-- Hidden fields for location -->
+              <input type="hidden" name="latitude" id="latitude" value="<%= geoFilter && geoFilter.latitude ? geoFilter.latitude : '' %>" />
+              <input type="hidden" name="longitude" id="longitude" value="<%= geoFilter && geoFilter.longitude ? geoFilter.longitude : '' %>" />
+
+              <!-- Map and Location Button Row -->
+              <div class="bg-neutral-900/50 border border-white/5 rounded-xl p-4 space-y-3">
+                <div class="flex items-center justify-between flex-wrap gap-3">
+                  <p class="text-sm text-gray-300">
+                    <i class="fas fa-info-circle mr-2 text-accent"></i>
+                    Click on the map to set your location and filter homes within 1-15 km
+                  </p>
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <button 
+                      type="button" 
+                      id="clear-geo-filter" 
+                      class="px-4 py-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 text-sm font-medium transition-all"
+                    >
+                      <i class="fas fa-times mr-2"></i>Clear Location
+                    </button>
+                    <button 
+                      type="button" 
+                      id="use-my-location" 
+                      class="px-4 py-2 rounded-lg bg-primary/20 hover:bg-primary/30 border border-primary/30 text-primary text-sm font-medium transition-all"
+                    >
+                      <i class="fas fa-location-dot mr-2"></i>Use My Location
+                    </button>
+                  </div>
+                </div>
+                <div id="filter-map" class="w-full h-64 rounded-lg overflow-hidden shadow-inner"></div>
+              </div>
+
+              <!-- Submit Button -->
+              <div class="flex gap-3 justify-center md:justify-end pt-2">
+                <a href="/homes" class="px-6 py-3 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold transition-all">
+                  <i class="fas fa-redo mr-2"></i>Reset
+                </a>
+                <button 
+                  type="submit" 
+                  class="px-8 py-3 rounded-lg bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white font-bold transition-all duration-300 shadow-lg shadow-primary/25 hover:shadow-lg hover:shadow-secondary/25 active:scale-95"
+                >
+                  <i class="fas fa-search mr-2"></i>Search Stays
+                </button>
+              </div>
             </form>
           </div>
         </div>
@@ -148,6 +231,7 @@
                           <option value="price|asc" class="bg-neutral">Price: Low to High</option>
                           <option value="price|desc" class="bg-neutral">Price: High to Low</option>
                           <option value="rating|desc" class="bg-neutral">Top Rated</option>
+                          <option value="distance|asc" class="bg-neutral">Nearest distance</option>
                         </select>
                         <i
                           class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
@@ -167,12 +251,9 @@
                          hover:border-primary/40 hover:-translate-y-2
                          hover:shadow-2xl hover:shadow-primary/10
                          cursor-pointer flex flex-col h-full animate-slide-up"
-                        
-                        
-                        
-                          style="animation-delay: <%= index * 100 %>ms;"
-                          data-price="<%= Number(String(home.price || '').replace(/[^0-9.-]/g, '')) || 0 %>"
+                          data-price="<%= Number(home.price) || 0 %>"
                           data-rating="<%= Number(home.rating) || 0 %>"
+                          data-distance="<%= typeof home.distanceKm === 'number' ? home.distanceKm : 999999 %>"
                           onclick="window.location.href='/homes/<%= home._id %>'">
                           <% let photos=[]; if (home.photos && Array.isArray(home.photos) && home.photos.length> 0) {
                             photos = home.photos.filter(p => p && typeof p === 'string' && p.trim() !== '');
@@ -227,6 +308,14 @@
                                   <%= home.location %>
                                 </span>
                               </div>
+                              <% if (geoFilter && geoFilter.latitude && geoFilter.longitude && typeof home.distanceKm === 'number') { %>
+                                <div class="mb-3">
+                                  <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-primary/15 text-primary text-xs font-semibold">
+                                    <i class="fas fa-location-arrow mr-1"></i>
+                                    <%= home.distanceKm.toFixed(1) %> km away
+                                  </span>
+                                </div>
+                              <% } %>
 
                               <p class="text-gray-700 dark:text-gray-500 text-sm line-clamp-2 mb-4 flex-grow">
                                 <%= home.description %>
@@ -255,29 +344,220 @@
                     </div>
                     <% } %>
 
+                      <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
                       <script>
                         (function () {
-                          const select = document.getElementById('sort-select');
-                          const container = document.getElementById('homes-grid');
-                          if (!select || !container) return;
+                          // Filter form elements
+                          const latInput = document.getElementById('latitude');
+                          const lngInput = document.getElementById('longitude');
+                          const radiusInput = document.getElementById('radiusKm');
+                          const radiusValue = document.getElementById('radiusValue');
+                          const useLocationBtn = document.getElementById('use-my-location');
+                          const clearGeoBtn = document.getElementById('clear-geo-filter');
+                          const startDateInput = document.getElementById('startDate');
+                          const endDateInput = document.getElementById('endDate');
+                          const mapEl = document.getElementById('filter-map');
+                          const sortSelect = document.getElementById('sort-select');
+                          const homesGrid = document.getElementById('homes-grid');
 
-                          function sortHomes(val) {
-                            const [field, order] = val.split('|');
-                            const cards = Array.from(container.querySelectorAll('.home-card'));
-                            cards.sort((a, b) => {
-                              const av = parseFloat(a.dataset[field]) || 0;
-                              const bv = parseFloat(b.dataset[field]) || 0;
-                              return order === 'asc' ? av - bv : bv - av;
-                            });
-                            cards.forEach(c => container.appendChild(c));
+                          // Enhanced date picker functionality
+                          const localToday = new Date(Date.now() - (new Date().getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+                          
+                          // Calculate maximum date (6 months from today)
+                          const maxDate = new Date(localToday);
+                          maxDate.setMonth(maxDate.getMonth() + 6);
+                          const maxDateStr = maxDate.toISOString().split('T')[0];
+                          
+                          // Set minimum and maximum dates for both inputs
+                          if (startDateInput) {
+                            startDateInput.min = localToday;
+                            startDateInput.max = maxDateStr;
+                            if (!startDateInput.value) startDateInput.value = localToday;
                           }
 
-                          select.addEventListener('change', function () {
-                            sortHomes(this.value);
-                          });
+                          if (endDateInput) {
+                            endDateInput.min = localToday;
+                            endDateInput.max = maxDateStr;
+                            if (!endDateInput.value) {
+                              // Set end date to tomorrow by default
+                              const tomorrow = new Date(localToday);
+                              tomorrow.setDate(tomorrow.getDate() + 1);
+                              endDateInput.value = tomorrow.toISOString().split('T')[0];
+                            }
+                          }
 
-                          if (select.value) {
-                            sortHomes(select.value);
+                          // Enhanced end date validation
+                          if (startDateInput && endDateInput) {
+                            const updateDateValidation = () => {
+                              const startDate = new Date(startDateInput.value || localToday);
+                              const minEndDate = new Date(startDate);
+                              minEndDate.setDate(minEndDate.getDate() + 1); // End date must be at least next day
+                              
+                              // Calculate end date maximum (6 months from start date or global max, whichever is smaller)
+                              const maxEndDate = new Date(startDate);
+                              maxEndDate.setMonth(maxEndDate.getMonth() + 6);
+                              const finalMaxDate = maxEndDate > maxDate ? maxDate : maxEndDate;
+                              
+                              endDateInput.min = minEndDate.toISOString().split('T')[0];
+                              endDateInput.max = finalMaxDate.toISOString().split('T')[0];
+                              
+                              // If current end date is invalid, update it
+                              if (endDateInput.value && new Date(endDateInput.value) <= startDate) {
+                                endDateInput.value = minEndDate.toISOString().split('T')[0];
+                              }
+                              
+                              // If end date exceeds maximum, update it
+                              if (endDateInput.value && new Date(endDateInput.value) > finalMaxDate) {
+                                endDateInput.value = finalMaxDate.toISOString().split('T')[0];
+                              }
+                            };
+                            
+                            startDateInput.addEventListener('change', updateDateValidation);
+                            updateDateValidation();
+                          }
+
+                          // Radius slider update
+                          if (radiusInput && radiusValue) {
+                            radiusInput.addEventListener('input', function () {
+                              radiusValue.textContent = this.value + ' km';
+                            });
+                          }
+
+                          // Initialize map
+                          if (mapEl && latInput && lngInput) {
+                            const initialLat = parseFloat(latInput.value) || 28.6139;
+                            const initialLng = parseFloat(lngInput.value) || 77.209;
+                            const map = L.map(mapEl).setView([initialLat, initialLng], 12);
+                            
+                            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                              maxZoom: 19,
+                              attribution: '&copy; OpenStreetMap contributors'
+                            }).addTo(map);
+
+                            let marker = null;
+                            let circle = null;
+
+                            const updateMapMarker = (lat, lng) => {
+                              if (!marker) {
+                                marker = L.marker([lat, lng], {
+                                  icon: L.icon({
+                                    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+                                    iconSize: [25, 41],
+                                    iconAnchor: [12, 41],
+                                    popupAnchor: [1, -34],
+                                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+                                    shadowSize: [41, 41]
+                                  })
+                                }).addTo(map);
+                              } else {
+                                marker.setLatLng([lat, lng]);
+                              }
+
+                              const radiusKm = parseInt(radiusInput.value || '5', 10) || 5;
+                              if (!circle) {
+                                circle = L.circle([lat, lng], {
+                                  radius: radiusKm * 1000,
+                                  color: 'var(--p)',
+                                  fillColor: 'var(--p)',
+                                  fillOpacity: 0.2,
+                                  weight: 2
+                                }).addTo(map);
+                              } else {
+                                circle.setLatLng([lat, lng]);
+                                circle.setRadius(radiusKm * 1000);
+                              }
+
+                              latInput.value = lat;
+                              lngInput.value = lng;
+                            };
+
+                            // Set initial marker if coordinates exist
+                            if (latInput.value && lngInput.value) {
+                              updateMapMarker(initialLat, initialLng);
+                            }
+
+                            // Click on map to set location
+                            map.on('click', (e) => {
+                              updateMapMarker(e.latlng.lat, e.latlng.lng);
+                            });
+
+                            // Update circle when radius changes
+                            if (radiusInput) {
+                              radiusInput.addEventListener('input', function () {
+                                if (circle && latInput.value && lngInput.value) {
+                                  const radiusKm = parseInt(this.value, 10) || 5;
+                                  circle.setRadius(radiusKm * 1000);
+                                }
+                              });
+                            }
+
+                            // Use current location
+                            if (useLocationBtn) {
+                              useLocationBtn.addEventListener('click', function (e) {
+                                e.preventDefault();
+                                if (!navigator.geolocation) {
+                                  alert('Geolocation is not supported by your browser');
+                                  return;
+                                }
+                                navigator.geolocation.getCurrentPosition(
+                                  (pos) => {
+                                    const lat = pos.coords.latitude;
+                                    const lng = pos.coords.longitude;
+                                    map.setView([lat, lng], 13);
+                                    updateMapMarker(lat, lng);
+                                  },
+                                  (err) => {
+                                    console.error('Geolocation error:', err);
+                                    alert('Unable to get your location. Please enable location access.');
+                                  }
+                                );
+                              });
+                            }
+
+                            // Clear location
+                            if (clearGeoBtn) {
+                              clearGeoBtn.addEventListener('click', function (e) {
+                                e.preventDefault();
+                                latInput.value = '';
+                                lngInput.value = '';
+                                if (marker) {
+                                  map.removeLayer(marker);
+                                  marker = null;
+                                }
+                                if (circle) {
+                                  map.removeLayer(circle);
+                                  circle = null;
+                                }
+                                map.setView([28.6139, 77.209], 12);
+                              });
+                            }
+                          }
+
+                          // Sorting functionality
+                          if (sortSelect && homesGrid) {
+                            const sortHomes = (sortValue) => {
+                              if (!sortValue) return;
+                              
+                              const [field, order] = sortValue.split('|');
+                              const cards = Array.from(homesGrid.querySelectorAll('.home-card'));
+                              
+                              cards.sort((a, b) => {
+                                const aValue = parseFloat(a.dataset[field]) || 0;
+                                const bValue = parseFloat(b.dataset[field]) || 0;
+                                return order === 'asc' ? aValue - bValue : bValue - aValue;
+                              });
+                              
+                              cards.forEach(card => homesGrid.appendChild(card));
+                            };
+
+                            sortSelect.addEventListener('change', function () {
+                              sortHomes(this.value);
+                            });
+
+                            // Apply initial sort if set
+                            if (sortSelect.value) {
+                              sortHomes(sortSelect.value);
+                            }
                           }
                         })();
                       </script>

@@ -1,4 +1,5 @@
 <%- include('../partials/head') %>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   </head>
 
   <body
@@ -7,7 +8,7 @@
 
       <main class="container mx-auto px-4 py-20 max-w-4xl animate-fade-in">
         <div class="text-center mb-10">
-          <h1 class="text-4xl md:text-5xl font-display font-bold text-white mb-2">
+          <h1 class="text-4xl md:text-5xl font-sans font-bold text-white mb-2 tracking-tight">
             <%= editing ? "Edit Your Listing" : "List Your Home" %>
           </h1>
           <p class="text-gray-400">Share your property with millions of travelers.</p>
@@ -41,18 +42,67 @@
                 </div>
               </div>
 
-              <!-- Location -->
+              <!-- Locality -->
               <div class="space-y-2">
-                <label for="location" class="block text-sm font-medium text-gray-300">Location</label>
+                <label for="location" class="block text-sm font-medium text-gray-300">Locality / Area</label>
                 <div class="relative">
                   <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"><i
                       class="fas fa-map-marker-alt"></i></span>
-                  <input id="location" type="text" name="location" value="<%= editing ? home.location : ''%>"
-                    placeholder="City, Country"
+                  <input id="location" type="text" name="location" value="<%= editing && home.address && home.address.locality ? home.address.locality : ''%>"
+                    placeholder="Area or locality"
                     class="w-full pl-10 pr-5 py-3 bg-neutral border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                     required />
+                  <input type="hidden" name="latitude" id="home-latitude" value="<%= editing && home.coordinates && home.coordinates.coordinates ? home.coordinates.coordinates[1] : '' %>" />
+                  <input type="hidden" name="longitude" id="home-longitude" value="<%= editing && home.coordinates && home.coordinates.coordinates ? home.coordinates.coordinates[0] : '' %>" />
                 </div>
               </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="space-y-2">
+                <label for="buildingNo" class="block text-sm font-medium text-gray-300">Building No.</label>
+                <input id="buildingNo" type="text" name="buildingNo"
+                  value="<%= editing && home.address ? home.address.buildingNo : ''%>"
+                  placeholder="Flat / House No."
+                  class="w-full px-5 py-3 bg-neutral border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" />
+              </div>
+              <div class="space-y-2">
+                <label for="street" class="block text-sm font-medium text-gray-300">Street</label>
+                <input id="street" type="text" name="street" value="<%= editing && home.address ? home.address.street : ''%>"
+                  placeholder="Street name"
+                  class="w-full px-5 py-3 bg-neutral border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" />
+              </div>
+              <div class="space-y-2">
+                <label for="landmark" class="block text-sm font-medium text-gray-300">Landmark</label>
+                <input id="landmark" type="text" name="landmark" value="<%= editing && home.address ? home.address.landmark : ''%>"
+                  placeholder="Nearby landmark"
+                  class="w-full px-5 py-3 bg-neutral border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" />
+              </div>
+              <div class="space-y-2">
+                <label for="city" class="block text-sm font-medium text-gray-300">City</label>
+                <input id="city" type="text" name="city" value="<%= editing && home.address ? home.address.city : ''%>"
+                  placeholder="City"
+                  class="w-full px-5 py-3 bg-neutral border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" />
+              </div>
+              <div class="space-y-2 md:col-span-2">
+                <label for="state" class="block text-sm font-medium text-gray-300">State</label>
+                <input id="state" type="text" name="state" value="<%= editing && home.address ? home.address.state : ''%>"
+                  placeholder="State"
+                  class="w-full px-5 py-3 bg-neutral border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" />
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <label class="block text-sm font-medium text-gray-300">Pick exact position on map</label>
+                <div class="flex items-center gap-2">
+                  <button type="button" id="use-current-location" class="btn btn-xs btn-outline">Use current location</button>
+                  <button type="button" id="locate-from-text" class="btn btn-xs btn-outline">Locate by address</button>
+                </div>
+              </div>
+              <div id="home-map" class="w-full h-64 rounded-xl border border-white/10"></div>
+              <p class="text-xs text-gray-500">Click on map to set property coordinates for nearest-distance search.</p>
+              <p id="location-status" class="text-xs text-gray-400"></p>
             </div>
 
             <!-- Photos -->
@@ -71,6 +121,13 @@
                 </div>
               </div>
               <p class="text-xs text-gray-500 ml-1">First photo will be the cover image.</p>
+              <div id="selected-photos-preview" class="hidden mt-4 bg-neutral border border-white/10 rounded-xl p-4">
+                <div class="flex items-center justify-between mb-3">
+                  <span class="text-sm text-gray-300 font-medium">Selected photos preview</span>
+                  <span id="selected-photos-count" class="text-xs text-gray-500"></span>
+                </div>
+                <div id="selected-photos-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"></div>
+              </div>
 
               <% if (editing) { %>
                 <% let existingPhotos=[]; if (home.photos && Array.isArray(home.photos) && home.photos.length> 0) {
@@ -91,6 +148,10 @@
                         <% existingPhotos.forEach((p, idx)=> { %>
                           <div class="relative rounded-lg overflow-hidden border border-white/10 bg-white/5">
                             <img src="<%= p %>" alt="Photo <%= idx + 1 %>" class="w-full h-28 object-cover">
+                            <label class="absolute top-2 right-2 text-[10px] bg-black/70 text-white px-2 py-1 rounded cursor-pointer">
+                              <input type="checkbox" name="removePhotos" value="<%= p %>" class="mr-1">
+                              Remove
+                            </label>
                             <% if (idx===0) { %>
                               <div class="absolute top-2 left-2 badge badge-primary text-[10px]">Cover</div>
                               <% } %>
@@ -141,7 +202,61 @@
               </div>
             </div>
 
-            <!-- Keywords -->
+            <!-- Additional Property Details -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
+              <!-- Phone Number -->
+              <div class="space-y-2">
+                <label for="phoneNumber" class="block text-sm font-medium text-gray-300">Phone Number</label>
+                <input id="phoneNumber" type="tel" name="phoneNumber" value="<%= editing && home.phoneNumber ? home.phoneNumber : ''%>"
+                  placeholder="Contact number for inquiries"
+                  class="w-full px-5 py-3 bg-neutral border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" />
+              </div>
+
+              <!-- Total Floors -->
+              <div class="space-y-2">
+                <label for="totalFloors" class="block text-sm font-medium text-gray-300">Total Floors</label>
+                <input id="totalFloors" type="number" name="totalFloors" min="1" value="<%= editing && home.totalFloors ? home.totalFloors : '1'%>"
+                  class="w-full px-5 py-3 bg-neutral border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" />
+              </div>
+
+              <!-- Property Age -->
+              <div class="space-y-2">
+                <label for="propertyAge" class="block text-sm font-medium text-gray-300">Property Age</label>
+                <select id="propertyAge" name="propertyAge"
+                  class="w-full px-5 py-3 bg-neutral border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all">
+                  <% const ageOptions = ['1','2','3','4','5','6','7','8','9','10+']; %>
+                  <% ageOptions.forEach(age => { %>
+                    <option value="<%= age %>" <%= editing && home.propertyAge === age ? 'selected' : (!editing && age === '1' ? 'selected' : '') %>><%= age %> years</option>
+                  <% }); %>
+                </select>
+              </div>
+
+              <!-- Facing Direction -->
+              <div class="space-y-2">
+                <label for="facingDirection" class="block text-sm font-medium text-gray-300">Facing Direction</label>
+                <select id="facingDirection" name="facingDirection"
+                  class="w-full px-5 py-3 bg-neutral border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all">
+                  <% const directions = ['East', 'West', 'North', 'South', 'North-East', 'North-West', 'South-East', 'South-West']; %>
+                  <% directions.forEach(dir => { %>
+                    <option value="<%= dir %>" <%= editing && home.facingDirection === dir ? 'selected' : (!editing && dir === 'East' ? 'selected' : '') %>><%= dir %></option>
+                  <% }); %>
+                </select>
+              </div>
+
+              <!-- Property Type -->
+              <div class="space-y-2">
+                <label for="propertyType" class="block text-sm font-medium text-gray-300">Property Type</label>
+                <select id="propertyType" name="propertyType"
+                  class="w-full px-5 py-3 bg-neutral border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all">
+                  <% const propertyTypes = ['Apartment', 'Independent house', 'Villa', 'Studio']; %>
+                  <% propertyTypes.forEach(type => { %>
+                    <option value="<%= type %>" <%= editing && home.propertyType === type ? 'selected' : (!editing && type === 'Apartment' ? 'selected' : '') %>><%= type %></option>
+                  <% }); %>
+                </select>
+              </div>
+            </div>
+
+            <!-- Features -->
             <div class="pt-4 space-y-3">
               <h3 class="text-sm font-medium text-gray-300">Features</h3>
               <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
@@ -149,7 +264,10 @@
                   , "Separate living area" , "Modular kitchen" , "Attached bathroom" , "Balcony available"
                   , "24×7 water supply" , "Power backup" , "Lift available" , "Reserved parking" , "Wi-Fi ready"
                   , "Air conditioned" , "Near metro/bus" , "Close to market" , "Gated society" , "Security available"
-                  , "Peaceful locality" , "Family preferred" , "Bachelor allowed" ]; const selectedKeywords=(editing &&
+                  , "Peaceful locality" , "Family preferred" , "Bachelor allowed"
+                  , "LPG Gas" , "Pipeline Gas" , "Municipal Water" , "Borewell Water"
+                  , "Covered Parking" , "Open Parking" , "2W Parking" , "4W Parking"
+                  , "Pet Friendly" , "Electricity Included" ]; const selectedKeywords=(editing &&
                   home && Array.isArray(home.keywords)) ? home.keywords : []; %>
                   <% keywordOptions.forEach((k)=> { %>
                     <label class="group cursor-pointer">
@@ -205,16 +323,178 @@
         </div>
       </main>
 
+      <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
       <script>
         (function () {
+          const latInput = document.getElementById('home-latitude');
+          const lngInput = document.getElementById('home-longitude');
+          const locationInput = document.getElementById('location');
+          const mapEl = document.getElementById('home-map');
+          const locateFromTextBtn = document.getElementById('locate-from-text');
+          const useCurrentLocationBtn = document.getElementById('use-current-location');
+          const buildingNoInput = document.getElementById('buildingNo');
+          const streetInput = document.getElementById('street');
+          const landmarkInput = document.getElementById('landmark');
+          const cityInput = document.getElementById('city');
+          const stateInput = document.getElementById('state');
+          const locationStatus = document.getElementById('location-status');
+
+          if (mapEl && latInput && lngInput) {
+            const initialLat = parseFloat(latInput.value) || 28.6139;
+            const initialLng = parseFloat(lngInput.value) || 77.209;
+            const map = L.map(mapEl).setView([initialLat, initialLng], 12);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              maxZoom: 19,
+              attribution: '&copy; OpenStreetMap'
+            }).addTo(map);
+
+            let marker = null;
+            const setMarker = (lat, lng) => {
+              if (!marker) marker = L.marker([lat, lng]).addTo(map);
+              marker.setLatLng([lat, lng]);
+              latInput.value = String(lat);
+              lngInput.value = String(lng);
+            };
+            if (latInput.value && lngInput.value) setMarker(initialLat, initialLng);
+            map.on('click', (e) => setMarker(e.latlng.lat, e.latlng.lng));
+
+            if (locateFromTextBtn) locateFromTextBtn.addEventListener('click', async function () {
+              const q = [
+                buildingNoInput && buildingNoInput.value ? buildingNoInput.value.trim() : '',
+                streetInput && streetInput.value ? streetInput.value.trim() : '',
+                locationInput && locationInput.value ? locationInput.value.trim() : '',
+                landmarkInput && landmarkInput.value ? landmarkInput.value.trim() : '',
+                cityInput && cityInput.value ? cityInput.value.trim() : '',
+                stateInput && stateInput.value ? stateInput.value.trim() : '',
+                'India'
+              ].filter(Boolean).join(', ');
+              if (!q) return;
+              if (locationStatus) locationStatus.textContent = 'Searching location in India...';
+              const encoded = encodeURIComponent(q);
+              const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&addressdetails=1&countrycodes=in&accept-language=en&q=${encoded}`);
+              const data = await response.json();
+              if (!Array.isArray(data) || data.length === 0) {
+                if (locationStatus) locationStatus.textContent = 'No India match found for this address.';
+                return;
+              }
+              const countryCode = data[0] && data[0].address ? String(data[0].address.country_code || '').toLowerCase() : '';
+              if (countryCode && countryCode !== 'in') {
+                if (locationStatus) locationStatus.textContent = 'Only India addresses are allowed.';
+                return;
+              }
+              const lat = parseFloat(data[0].lat);
+              const lng = parseFloat(data[0].lon);
+              if (Number.isNaN(lat) || Number.isNaN(lng)) return;
+              map.setView([lat, lng], 14);
+              setMarker(lat, lng);
+              if (locationStatus) locationStatus.textContent = 'Pinned location found in India.';
+            });
+
+            if (useCurrentLocationBtn) useCurrentLocationBtn.addEventListener('click', function () {
+              if (!navigator.geolocation) return;
+              navigator.geolocation.getCurrentPosition(async function (pos) {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+                map.setView([lat, lng], 15);
+                setMarker(lat, lng);
+
+                try {
+                  const reverseUrl = `https://nominatim.openstreetmap.org/reverse?format=json&addressdetails=1&accept-language=en&lat=${lat}&lon=${lng}`;
+                  const resp = await fetch(reverseUrl);
+                  const data = await resp.json();
+                  const addr = data && data.address ? data.address : {};
+                  const cc = String(addr.country_code || '').toLowerCase();
+                  if (cc && cc !== 'in') {
+                    if (locationStatus) locationStatus.textContent = 'Detected location is outside India.';
+                    return;
+                  }
+                  if (streetInput) streetInput.value = addr.road || streetInput.value || "";
+                  if (cityInput) cityInput.value = addr.city || addr.town || addr.village || cityInput.value || "";
+                  if (stateInput) stateInput.value = addr.state || stateInput.value || "";
+                  if (locationInput) locationInput.value = addr.suburb || addr.neighbourhood || locationInput.value || "";
+                  if (landmarkInput && !landmarkInput.value) landmarkInput.value = addr.amenity || "";
+                  if (buildingNoInput && !buildingNoInput.value) buildingNoInput.value = addr.house_number || "";
+                  if (locationStatus) locationStatus.textContent = 'Current location set (India).';
+                } catch (err) {
+                  console.error('Reverse geocode failed:', err);
+                  if (locationStatus) locationStatus.textContent = 'Unable to fetch address for current location.';
+                }
+              });
+            });
+          }
+
           const btn = document.getElementById('generate-description-btn');
           const photosInput = document.getElementById('photos');
+          const selectedPhotosPreview = document.getElementById('selected-photos-preview');
+          const selectedPhotosGrid = document.getElementById('selected-photos-grid');
+          const selectedPhotosCount = document.getElementById('selected-photos-count');
           const descriptionEl = document.getElementById('description');
           const statusEl = document.getElementById('generate-description-status');
           const loadingEl = document.getElementById('ai-loading');
-          const homeId = <%= editing && home ? JSON.stringify(String(home._id)) : 'null' %>;
 
 
+
+          if (photosInput && selectedPhotosPreview && selectedPhotosGrid && selectedPhotosCount) {
+            let selectedFiles = [];
+            const syncFilesToInput = () => {
+              const dt = new DataTransfer();
+              selectedFiles.forEach((f) => dt.items.add(f));
+              photosInput.files = dt.files;
+            };
+            const renderSelectedFiles = () => {
+              const files = selectedFiles;
+              selectedPhotosGrid.innerHTML = '';
+              if (files.length === 0) {
+                selectedPhotosPreview.classList.add('hidden');
+                selectedPhotosCount.textContent = '';
+                syncFilesToInput();
+                return;
+              }
+              selectedPhotosPreview.classList.remove('hidden');
+              selectedPhotosCount.textContent = `${files.length} file(s) selected`;
+              syncFilesToInput();
+
+              files.forEach(function (file, idx) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'relative rounded-lg overflow-hidden border border-white/10 bg-white/5';
+
+                const img = document.createElement('img');
+                img.className = 'w-full h-28 object-cover';
+                img.alt = `Selected photo ${idx + 1}`;
+                img.src = URL.createObjectURL(file);
+                img.onload = function () {
+                  URL.revokeObjectURL(img.src);
+                };
+
+                wrapper.appendChild(img);
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'absolute top-2 right-2 bg-black/70 text-white text-[10px] px-2 py-1 rounded';
+                removeBtn.textContent = 'Remove';
+                removeBtn.addEventListener('click', function () {
+                  selectedFiles = selectedFiles.filter((_, i) => i !== idx);
+                  renderSelectedFiles();
+                });
+                wrapper.appendChild(removeBtn);
+
+                if (idx === 0) {
+                  const badge = document.createElement('div');
+                  badge.className = 'absolute top-2 left-2 badge badge-primary text-[10px]';
+                  badge.textContent = 'Cover';
+                  wrapper.appendChild(badge);
+                }
+                selectedPhotosGrid.appendChild(wrapper);
+              });
+            };
+
+            photosInput.addEventListener('change', function () {
+              const incomingFiles = photosInput.files ? Array.from(photosInput.files) : [];
+              if (incomingFiles.length > 0) {
+                selectedFiles = [...selectedFiles, ...incomingFiles];
+              }
+              renderSelectedFiles();
+            });
+          }
 
           if (!btn || !descriptionEl) return;
 
@@ -231,11 +511,19 @@
             const keywordEls = Array.from(document.querySelectorAll('input[name="keywords"]:checked'));
             const keywords = keywordEls.map(el => el.value);
 
-            // Furnishing and BHK values
+            // Furnishing, BHK, and property details values
             const furnishedEl = document.querySelector('input[name="furnished"]:checked');
             const bhkEl = document.querySelector('input[name="bhk"]:checked');
+            const totalFloorsEl = document.querySelector('#totalFloors');
+            const propertyAgeEl = document.querySelector('#propertyAge');
+            const propertyTypeEl = document.querySelector('#propertyType');
+            const facingDirectionEl = document.querySelector('#facingDirection');
             const furnished = furnishedEl ? furnishedEl.value : undefined;
             const bhk = bhkEl ? bhkEl.value : undefined;
+            const totalFloors = totalFloorsEl ? totalFloorsEl.value : undefined;
+            const propertyAge = propertyAgeEl ? propertyAgeEl.value : undefined;
+            const propertyType = propertyTypeEl ? propertyTypeEl.value : undefined;
+            const facingDirection = facingDirectionEl ? facingDirectionEl.value : undefined;
 
             // Prefer using selected file if provided
             const files = photosInput ? photosInput.files : null;
@@ -248,7 +536,7 @@
               fetch('/host/generate-description', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ image: base64, mimeType, keywords, furnished, bhk, homeId })
+                body: JSON.stringify({ image: base64, mimeType, keywords, furnished, bhk, totalFloors, propertyAge, propertyType, facingDirection })
               })
                 .then(res => res.json())
                 .then(data => {

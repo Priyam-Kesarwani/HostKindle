@@ -13,7 +13,7 @@
         </div>
 
         <div class="container mx-auto px-4 relative z-10 text-center">
-          <h1 class="text-4xl md:text-6xl font-display font-bold text-white mb-4 animate-fade-in">
+          <h1 class="text-4xl md:text-6xl font-sans font-bold text-white mb-4 animate-fade-in tracking-tight">
             <%= home.houseName %>
           </h1>
           <div class="flex items-center justify-center gap-6 text-gray-400 animate-slide-up"
@@ -168,24 +168,32 @@
                     </button>
                   </form>
                   <% } else if (isLoggedIn) { %>
-                    <form action="/homes/<%= home._id %>/book" method="POST" class="space-y-3">
+                    <% const localToday = new Date(Date.now() - (new Date().getTimezoneOffset() * 60000)).toISOString().split('T')[0]; %>
+                    <form id="booking-form" class="space-y-3">
                       <div class="grid grid-cols-2 gap-3">
                         <div class="form-control">
-                          <label class="label"><span class="label-text text-gray-300">Start</span></label>
-                          <input type="date" name="startDate"
-                            class="input input-bordered w-full bg-white/5 border-white/10 text-white"
-                            min="<%= new Date().toISOString().split('T')[0] %>">
+                          <label class="label"><span class="label-text text-gray-300">Move-in date</span></label>
+                          <input type="date" name="startDate" id="startDate"
+                            class="input input-bordered w-full bg-white/5 border-white/10 text-base-content cursor-pointer"
+                            min="<%= localToday %>" value="<%= localToday %>" required>
                         </div>
                         <div class="form-control">
-                          <label class="label"><span class="label-text text-gray-300">End</span></label>
-                          <input type="date" name="endDate"
+                          <label class="label"><span class="label-text text-gray-300">Months</span></label>
+                          <input type="number" name="months" id="months"
                             class="input input-bordered w-full bg-white/5 border-white/10 text-white"
-                            min="<%= new Date().toISOString().split('T')[0] %>">
+                            min="1" max="24" value="1" required>
                         </div>
                       </div>
-                      <button type="submit"
-                        class="w-full bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white py-4 rounded-xl font-bold shadow-lg shadow-primary/25 transition-all hover:scale-[1.02] active:scale-[0.98]">
-                        Book Now
+                      <button type="button" id="check-availability-btn"
+                        class="w-full bg-white/10 hover:bg-white/20 text-white py-3 rounded-xl font-semibold border border-white/10">
+                        Check Availability
+                      </button>
+                      <div id="availability-message" class="text-sm rounded-lg p-3 hidden"></div>
+                      <div id="amount-message" class="text-sm text-gray-300"></div>
+                      <button type="submit" id="book-now-btn"
+                        class="w-full bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white py-4 rounded-xl font-bold shadow-lg shadow-primary/25 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+                        disabled>
+                        Book Now & Pay
                         <i class="fas fa-arrow-right"></i>
                       </button>
                     </form>
@@ -200,6 +208,31 @@
             </div>
           </div>
         </div>
+
+        <div id="unavailable-similar" class="hidden bg-neutral-900/30 backdrop-blur-md rounded-3xl p-8 border border-white/5 mb-16">
+          <h3 class="text-2xl font-bold text-white mb-4">Similar properties you can book</h3>
+          <div id="similar-home-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+        </div>
+
+        <% if (similarHomes && similarHomes.length > 0) { %>
+          <div class="bg-neutral-900/30 backdrop-blur-md rounded-3xl p-8 border border-white/5 mb-16">
+            <h3 class="text-2xl font-bold text-white mb-4">You may also like</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <% similarHomes.forEach((item) => { 
+                const altPhoto = (item.photos && item.photos[0]) ? item.photos[0] : (item.photo || '/uploads/default.jpg');
+              %>
+                <a href="/homes/<%= item._id %>" class="block rounded-2xl overflow-hidden border border-white/10 hover:border-primary/40 transition-all bg-neutral-800/60">
+                  <img src="<%= altPhoto %>" class="h-36 w-full object-cover" alt="<%= item.houseName %>">
+                  <div class="p-4">
+                    <h4 class="font-semibold text-white truncate"><%= item.houseName %></h4>
+                    <p class="text-sm text-gray-400 truncate"><%= item.location %></p>
+                    <p class="text-primary font-semibold mt-2">Rs <%= item.price %> / month</p>
+                  </div>
+                </a>
+              <% }) %>
+            </div>
+          </div>
+        <% } %>
 
         <!-- Description & Features -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
@@ -221,6 +254,80 @@
                     <% }) %>
                 </div>
                 <% } %>
+            </div>
+
+            <!-- Property Details -->
+            <div class="bg-neutral-900/30 backdrop-blur-md rounded-3xl p-8 border border-white/5">
+              <h2 class="text-2xl font-bold text-white mb-6">Property Details</h2>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <% if (home.phoneNumber) { %>
+                  <div class="flex items-center gap-4 text-gray-300">
+                    <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-primary">
+                      <i class="fas fa-phone"></i>
+                    </div>
+                    <div>
+                      <p class="text-xs text-gray-500 uppercase">Contact</p>
+                      <p class="font-medium"><%= home.phoneNumber %></p>
+                    </div>
+                  </div>
+                <% } %>
+
+                <div class="flex items-center gap-4 text-gray-300">
+                  <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-secondary">
+                    <i class="fas fa-building"></i>
+                  </div>
+                  <div>
+                    <p class="text-xs text-gray-500 uppercase">Property Type</p>
+                    <p class="font-medium"><%= home.propertyType || 'Apartment' %></p>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-4 text-gray-300">
+                  <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-status">
+                    <i class="fas fa-hourglass-half"></i>
+                  </div>
+                  <div>
+                    <p class="text-xs text-gray-500 uppercase">Property Age</p>
+                    <p class="font-medium"><%= home.propertyAge || '1' %> years</p>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-4 text-gray-300">
+                  <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-accent">
+                    <i class="fas fa-compass"></i>
+                  </div>
+                  <div>
+                    <p class="text-xs text-gray-500 uppercase">Facing Direction</p>
+                    <p class="font-medium"><%= home.facingDirection || 'East' %></p>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-4 text-gray-300">
+                  <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-info">
+                    <i class="fas fa-layer-group"></i>
+                  </div>
+                  <div>
+                    <p class="text-xs text-gray-500 uppercase">Total Floors</p>
+                    <p class="font-medium"><%= home.totalFloors || 1 %></p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Features -->
+              <div class="mt-6 pt-6 border-t border-white/5">
+                <h3 class="text-lg font-semibold text-white mb-4">Features</h3>
+                <div class="flex flex-wrap gap-3">
+                  <% if (home.keywords && Array.isArray(home.keywords) && home.keywords.length > 0) { %>
+                    <% home.keywords.forEach(keyword => { %>
+                      <span class="inline-flex items-center px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 text-primary text-sm">
+                        <i class="fas fa-check mr-2"></i><%= keyword %>
+                      </span>
+                    <% }); %>
+                  <% } else { %>
+                    <span class="text-gray-400 text-sm">No features specified</span>
+                  <% } %>
+                </div>
+              </div>
             </div>
 
             <!-- Rating Section -->
@@ -380,8 +487,167 @@
 
       </main>
 
+        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
         <script>
           document.addEventListener('DOMContentLoaded', function () {
+            const bookingForm = document.getElementById('booking-form');
+            const checkBtn = document.getElementById('check-availability-btn');
+            const bookBtn = document.getElementById('book-now-btn');
+            const startDateInput = document.getElementById('startDate');
+            const monthsInput = document.getElementById('months');
+            const availabilityMessage = document.getElementById('availability-message');
+            const amountMessage = document.getElementById('amount-message');
+            const unavailableSimilar = document.getElementById('unavailable-similar');
+            const similarGrid = document.getElementById('similar-home-grid');
+            const homeId = "<%= home._id %>";
+            const monthlyPrice = Number("<%= Number(home.price || 0) %>");
+            let isAvailable = false;
+
+            if (startDateInput) {
+              startDateInput.addEventListener('focus', function () {
+                if (typeof startDateInput.showPicker === 'function') {
+                  startDateInput.showPicker();
+                }
+              });
+            }
+
+            function setMessage(text, type) {
+              if (!availabilityMessage) return;
+              availabilityMessage.classList.remove('hidden', 'bg-green-500/15', 'text-green-300', 'bg-red-500/15', 'text-red-300');
+              availabilityMessage.textContent = text;
+              if (type === 'success') {
+                availabilityMessage.classList.add('bg-green-500/15', 'text-green-300');
+              } else {
+                availabilityMessage.classList.add('bg-red-500/15', 'text-red-300');
+              }
+            }
+
+            function renderSimilar(homes) {
+              if (!unavailableSimilar || !similarGrid) return;
+              if (!homes || homes.length === 0) {
+                unavailableSimilar.classList.add('hidden');
+                similarGrid.innerHTML = '';
+                return;
+              }
+              similarGrid.innerHTML = homes.map((item) => {
+                const photo = (item.photos && item.photos[0]) ? item.photos[0] : (item.photo || '/uploads/default.jpg');
+                return `
+                  <a href="/homes/${item._id}" class="block rounded-2xl overflow-hidden border border-white/10 hover:border-primary/40 transition-all bg-neutral-800/60">
+                    <img src="${photo}" class="h-36 w-full object-cover" alt="${item.houseName}">
+                    <div class="p-4">
+                      <h4 class="font-semibold text-white truncate">${item.houseName}</h4>
+                      <p class="text-sm text-gray-400 truncate">${item.location || ''}</p>
+                      <p class="text-primary font-semibold mt-2">Rs ${item.price} / month</p>
+                    </div>
+                  </a>
+                `;
+              }).join('');
+              unavailableSimilar.classList.remove('hidden');
+            }
+
+            async function checkAvailability() {
+              if (!startDateInput || !monthsInput) return false;
+              const months = parseInt(monthsInput.value, 10) || 1;
+              amountMessage.textContent = `Total payable: Rs ${months * monthlyPrice}`;
+
+              const response = await fetch(`/homes/${homeId}/check-availability`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  startDate: startDateInput.value,
+                  months: months
+                })
+              });
+              const data = await response.json();
+              if (!response.ok || !data.success) {
+                throw new Error(data.message || 'Unable to check availability.');
+              }
+              isAvailable = !!data.available;
+              bookBtn.disabled = !isAvailable;
+              if (isAvailable) {
+                setMessage('Available for selected duration. You can proceed to payment.', 'success');
+                renderSimilar([]);
+              } else {
+                setMessage(data.message || 'Not available for selected dates.', 'error');
+                renderSimilar(data.similarHomes || []);
+              }
+              return isAvailable;
+            }
+
+            if (checkBtn) {
+              checkBtn.addEventListener('click', async function () {
+                try {
+                  await checkAvailability();
+                } catch (err) {
+                  setMessage(err.message, 'error');
+                }
+              });
+            }
+
+            if (bookingForm) {
+              bookingForm.addEventListener('submit', async function (event) {
+                event.preventDefault();
+                try {
+                  if (!isAvailable) {
+                    const ok = await checkAvailability();
+                    if (!ok) return;
+                  }
+
+                  const months = parseInt(monthsInput.value, 10) || 1;
+                  const orderResp = await fetch(`/homes/${homeId}/payment/order`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      startDate: startDateInput.value,
+                      months: months
+                    })
+                  });
+                  const orderData = await orderResp.json();
+                  if (!orderResp.ok || !orderData.success) {
+                    throw new Error(orderData.message || 'Unable to create payment order.');
+                  }
+
+                  const options = {
+                    key: orderData.key,
+                    amount: orderData.order.amount,
+                    currency: orderData.order.currency,
+                    name: orderData.home.name,
+                    description: `Booking for ${orderData.bookingDraft.months} month(s)`,
+                    order_id: orderData.order.id,
+                    handler: async function (paymentResponse) {
+                      const verifyResp = await fetch(`/homes/${homeId}/payment/verify`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          razorpay_order_id: paymentResponse.razorpay_order_id,
+                          razorpay_payment_id: paymentResponse.razorpay_payment_id,
+                          razorpay_signature: paymentResponse.razorpay_signature,
+                          startDate: startDateInput.value,
+                          months: months,
+                          totalAmount: orderData.bookingDraft.totalAmount
+                        })
+                      });
+                      const verifyData = await verifyResp.json();
+                      if (!verifyResp.ok || !verifyData.success) {
+                        throw new Error(verifyData.message || 'Payment verification failed.');
+                      }
+                      window.location.href = verifyData.redirectUrl || '/bookings';
+                    },
+                    prefill: {
+                      name: orderData.user.name,
+                      email: orderData.user.email
+                    },
+                    theme: { color: '#6366f1' }
+                  };
+
+                  const rzp = new Razorpay(options);
+                  rzp.open();
+                } catch (err) {
+                  setMessage(err.message || 'Booking failed. Please try again.', 'error');
+                }
+              });
+            }
+
             const form = document.getElementById('rating-form');
             if (form) {
               const hiddenInput = document.getElementById('rating-value');

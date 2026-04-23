@@ -9,7 +9,7 @@
           class="relative w-10 h-10 mr-3 flex items-center justify-center bg-gradient-to-br from-primary to-accent rounded-xl shadow-lg group-hover:shadow-primary/50 transition-all duration-300">
           <i class="fas fa-home text-white text-lg"></i>
         </div>
-        <span class="text-2xl font-display font-bold text-base-content">HostKindle</span>
+        <span class="text-2xl font-sans font-bold text-base-content tracking-tight">HostKindle</span>
       </a>
 
       <!-- Desktop Menu -->
@@ -163,17 +163,22 @@
       if (!btn) return;
 
       const icon = btn.querySelector('i');
+      if (!icon) return;
+
+      const currentlyFav = icon.classList.contains('fas');
+      const setFavUI = (shouldBeFav) => {
+        // This project uses FontAwesome `fas`/`far` (not `fa-solid`/`fa-regular`).
+        icon.classList.remove('fas', 'far');
+        icon.classList.add(shouldBeFav ? 'fas' : 'far');
+
+        // Keep button colors in sync with the heart state.
+        btn.classList.toggle('text-red-500', shouldBeFav);
+        btn.classList.toggle('text-white/70', !shouldBeFav);
+        btn.classList.toggle('hover:text-white', !shouldBeFav);
+      };
 
       // Optimistic UI
-      if (icon) {
-        if (icon.classList.contains('fa-regular')) {
-          icon.classList.remove('fa-regular');
-          icon.classList.add('fa-solid', 'text-red-500');
-        } else {
-          icon.classList.remove('fa-solid', 'text-red-500');
-          icon.classList.add('fa-regular');
-        }
-      }
+      setFavUI(!currentlyFav);
 
       btn.disabled = true;
 
@@ -184,24 +189,23 @@
           credentials: 'same-origin',
           body: JSON.stringify({ id: homeId })
         });
+
+        if (res.status === 401) {
+          window.location.href = '/login';
+          return;
+        }
+
         const data = await res.json();
         if (data && data.success) {
           // Success, already updated UI optimistically
         } else {
           console.error('Toggle failed', data);
           // Revert if failed
-          if (icon) {
-            if (icon.classList.contains('fa-solid')) {
-              icon.classList.remove('fa-solid', 'text-red-500');
-              icon.classList.add('fa-regular');
-            } else {
-              icon.classList.remove('fa-regular');
-              icon.classList.add('fa-solid', 'text-red-500');
-            }
-          }
+          setFavUI(currentlyFav);
         }
       } catch (err) {
         console.error('Error toggling favourite', err);
+        setFavUI(currentlyFav);
       } finally {
         btn.disabled = false;
       }
