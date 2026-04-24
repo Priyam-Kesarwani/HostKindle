@@ -156,7 +156,7 @@ exports.postAddHome = async (req, res, next) => {
     totalFloors: Number.isInteger(Number(totalFloors)) && Number(totalFloors) > 0 ? Number(totalFloors) : 1,
     facingDirection: ['East', 'West', 'North', 'South', 'North-East', 'North-West', 'South-East', 'South-West'].includes(facingDirection) ? facingDirection : 'East',
     propertyAge: ['1','2','3','4','5','6','7','8','9','10+'].includes(propertyAge) ? propertyAge : '1',
-    propertyType: ['Apartment', 'Independent house', 'Villa', 'Studio'].includes(propertyType) ? propertyType : 'Apartment',
+    propertyType: ['Apartment', 'Independent house', 'Villa', 'Studio', 'PG / Shared Accommodation', 'Hostel'].includes(propertyType) ? propertyType : 'Apartment',
     coordinates:
       !Number.isNaN(lat) && !Number.isNaN(lng)
         ? { type: "Point", coordinates: [lng, lat] }
@@ -304,7 +304,7 @@ exports.postEditHome = async (req, res, next) => {
       home.totalFloors = Number.isInteger(Number(totalFloors)) && Number(totalFloors) > 0 ? Number(totalFloors) : 1;
       home.propertyAge = ['1','2','3','4','5','6','7','8','9','10+'].includes(propertyAge) ? propertyAge : '1';
       home.facingDirection = ['East', 'West', 'North', 'South', 'North-East', 'North-West', 'South-East', 'South-West'].includes(facingDirection) ? facingDirection : 'East';
-      home.propertyType = ['Apartment', 'Independent house', 'Villa', 'Studio'].includes(propertyType) ? propertyType : 'Apartment';
+      home.propertyType = ['Apartment', 'Independent house', 'Villa', 'Studio', 'PG / Shared Accommodation', 'Hostel'].includes(propertyType) ? propertyType : 'Apartment';
 
       // Handle multiple photo uploads
       const removeList = Array.isArray(removePhotos)

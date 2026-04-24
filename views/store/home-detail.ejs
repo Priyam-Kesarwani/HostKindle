@@ -445,8 +445,15 @@
                             </div>
                             <div>
                               <h5 class="text-sm font-bold text-white">
-                                <%= comment.user && comment.user.firstName ? comment.user.firstName : 'Guest' %>
-                                  <%= comment.user && comment.user.lastName ? comment.user.lastName : '' %>
+                                <% if (comment.user && comment.user._id) { %>
+                                  <a href="/users/<%= comment.user._id %>" class="hover:text-primary transition-colors">
+                                    <%= comment.user && comment.user.firstName ? comment.user.firstName : 'Guest' %>
+                                      <%= comment.user && comment.user.lastName ? comment.user.lastName : '' %>
+                                  </a>
+                                <% } else { %>
+                                  <%= comment.user && comment.user.firstName ? comment.user.firstName : 'Guest' %>
+                                    <%= comment.user && comment.user.lastName ? comment.user.lastName : '' %>
+                                <% } %>
                               </h5>
                               <p class="text-xs text-gray-500">
                                 <%= new Date(comment.createdAt).toLocaleDateString() %>
@@ -486,6 +493,8 @@
         </div>
 
       </main>
+
+      <%- include('../partials/footer') %>
 
         <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
         <script>

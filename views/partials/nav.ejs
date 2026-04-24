@@ -1,5 +1,25 @@
 <header
   class="bg-neutral/80 text-base-content p-4 sticky top-0 z-50 glass-dark transition-all duration-300 backdrop-blur-md border-b border-white/10">
+  <%
+    const page = (currentPage || "").toLowerCase();
+    const isActive = (keys) => keys.includes(page);
+    const desktopLinkClass = (active, theme) =>
+      `nav-link font-medium transition-colors relative after:absolute after:bottom-[-4px] after:left-0 after:h-0.5 after:transition-all ${
+        active
+          ? (theme === "secondary"
+              ? "text-secondary after:w-full after:bg-secondary"
+              : "text-primary after:w-full after:bg-primary")
+          : (theme === "secondary"
+              ? "text-gray-300 hover:text-secondary after:w-0 after:bg-secondary hover:after:w-full"
+              : "text-gray-300 hover:text-primary after:w-0 after:bg-primary hover:after:w-full")
+      }`;
+    const mobileLinkClass = (active, theme) =>
+      `block px-4 py-2 rounded-lg transition-colors ${
+        active
+          ? (theme === "secondary" ? "bg-secondary/15 text-secondary" : "bg-primary/15 text-primary")
+          : (theme === "secondary" ? "hover:bg-white/5 text-gray-300 hover:text-secondary" : "hover:bg-white/5 text-gray-300 hover:text-primary")
+      }`;
+  %>
   <nav class="container mx-auto">
     <!-- Desktop Navigation -->
     <div class="flex justify-between items-center">
@@ -17,17 +37,17 @@
         <% if (isLoggedIn) { %>
           <% if (user && user.userType==='guest' ) { %>
             <a href="/homes"
-              class="nav-link text-gray-300 hover:text-primary font-medium transition-colors relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-primary after:transition-all hover:after:w-full">Homes</a>
+              class="<%= desktopLinkClass(isActive(['index', 'home', 'homes']), 'primary') %>">Homes</a>
             <a href="/favourites"
-              class="nav-link text-gray-300 hover:text-primary font-medium transition-colors relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-primary after:transition-all hover:after:w-full">Favourites</a>
+              class="<%= desktopLinkClass(isActive(['favourites']), 'primary') %>">Favourites</a>
             <a href="/bookings"
-              class="nav-link text-gray-300 hover:text-primary font-medium transition-colors relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-primary after:transition-all hover:after:w-full">Bookings</a>
+              class="<%= desktopLinkClass(isActive(['bookings']), 'primary') %>">Bookings</a>
             <% } else { %>
               <a href="/host/host-home-list"
-                class="nav-link text-gray-300 hover:text-secondary font-medium transition-colors relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-secondary after:transition-all hover:after:w-full">Host
+                class="<%= desktopLinkClass(isActive(['host-homes']), 'secondary') %>">Host
                 Homes</a>
               <a href="/host/add-home"
-                class="nav-link text-gray-300 hover:text-secondary font-medium transition-colors relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-0.5 after:bg-secondary after:transition-all hover:after:w-full">Add
+                class="<%= desktopLinkClass(isActive(['addhome']), 'secondary') %>">Add
                 Home</a>
               <% } %>
                 <% } %>
@@ -35,9 +55,9 @@
                   <div class="flex items-center gap-4 border-l border-gray-700 pl-6">
 
                     <% if (!isLoggedIn) { %>
-                      <a href="/login" class="text-gray-300 hover:text-white font-medium transition-colors">Login</a>
+                      <a href="/login" class="<%= isActive(['login']) ? 'text-primary font-semibold' : 'text-gray-300 hover:text-white font-medium transition-colors' %>">Login</a>
                       <a href="/signup"
-                        class="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white px-5 py-2.5 rounded-xl font-semibold shadow-lg shadow-primary/25 transition-all hover:scale-105 active:scale-95">Sign
+                        class="<%= isActive(['signup']) ? 'bg-gradient-to-r from-primary to-secondary text-white px-5 py-2.5 rounded-xl font-semibold shadow-lg shadow-primary/35 ring-2 ring-primary/40' : 'bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white px-5 py-2.5 rounded-xl font-semibold shadow-lg shadow-primary/25 transition-all hover:scale-105 active:scale-95' %>">Sign
                         Up</a>
                       <% } else { %>
                         <div class="relative group">
@@ -60,6 +80,10 @@
                                 <%= user.email %>
                               </p>
                             </div>
+                            <a href="/users/<%= user._id %>"
+                              class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
+                              <i class="fas fa-user mr-2"></i> Profile
+                            </a>
                             <form action="/logout" method="POST">
                               <button type="submit"
                                 class="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-gray-700 hover:text-red-300 transition-colors">
@@ -85,29 +109,31 @@
         <% if (isLoggedIn) { %>
           <% if (user && user.userType==='guest' ) { %>
             <a href="/homes"
-              class="block px-4 py-2 rounded-lg hover:bg-white/5 text-gray-300 hover:text-primary transition-colors">Homes</a>
+              class="<%= mobileLinkClass(isActive(['index', 'home', 'homes']), 'primary') %>">Homes</a>
             <a href="/favourites"
-              class="block px-4 py-2 rounded-lg hover:bg-white/5 text-gray-300 hover:text-primary transition-colors">Favourites</a>
+              class="<%= mobileLinkClass(isActive(['favourites']), 'primary') %>">Favourites</a>
             <a href="/bookings"
-              class="block px-4 py-2 rounded-lg hover:bg-white/5 text-gray-300 hover:text-primary transition-colors">Bookings</a>
+              class="<%= mobileLinkClass(isActive(['bookings']), 'primary') %>">Bookings</a>
             <% } else { %>
               <a href="/host/host-home-list"
-                class="block px-4 py-2 rounded-lg hover:bg-white/5 text-gray-300 hover:text-secondary transition-colors">Host
+                class="<%= mobileLinkClass(isActive(['host-homes']), 'secondary') %>">Host
                 Homes</a>
               <a href="/host/add-home"
-                class="block px-4 py-2 rounded-lg hover:bg-white/5 text-gray-300 hover:text-secondary transition-colors">Add
+                class="<%= mobileLinkClass(isActive(['addhome']), 'secondary') %>">Add
                 Home</a>
               <% } %>
                 <div class="border-t border-gray-700 my-2"></div>
+                <a href="/users/<%= user._id %>"
+                  class="block px-4 py-2 rounded-lg hover:bg-white/5 text-gray-300 hover:text-white transition-colors">Profile</a>
                 <form action="/logout" method="POST">
                   <button type="submit"
                     class="w-full text-left px-4 py-2 rounded-lg text-red-400 hover:bg-white/5 transition-colors">Logout</button>
                 </form>
                 <% } else { %>
                   <a href="/login"
-                    class="block px-4 py-2 rounded-lg hover:bg-white/5 text-gray-300 hover:text-white transition-colors">Login</a>
+                    class="<%= isActive(['login']) ? 'block px-4 py-2 rounded-lg bg-primary/15 text-primary' : 'block px-4 py-2 rounded-lg hover:bg-white/5 text-gray-300 hover:text-white transition-colors' %>">Login</a>
                   <a href="/signup"
-                    class="block px-4 py-2 rounded-lg bg-primary/20 text-primary hover:bg-primary/30 text-center font-medium transition-colors">Sign
+                    class="<%= isActive(['signup']) ? 'block px-4 py-2 rounded-lg bg-primary/35 text-white text-center font-semibold' : 'block px-4 py-2 rounded-lg bg-primary/20 text-primary hover:bg-primary/30 text-center font-medium transition-colors' %>">Sign
                     Up</a>
                   <% } %>
 

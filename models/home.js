@@ -85,7 +85,7 @@ const homeSchema = mongoose.Schema({
   },
   propertyType: {
     type: String,
-    enum: ['Apartment', 'Independent house', 'Villa', 'Studio'],
+    enum: ['Apartment', 'Independent house', 'Villa', 'Studio', 'PG / Shared Accommodation', 'Hostel'],
     default: 'Apartment',
   },
 });

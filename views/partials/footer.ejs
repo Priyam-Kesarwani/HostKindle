@@ -1,1 +1,12 @@
-<!-- Footer removed: site no longer uses a footer partial -->
+<footer class="mt-auto border-t border-white/10 bg-neutral/70 backdrop-blur-md">
+  <div class="container mx-auto px-4 py-6 flex flex-col md:flex-row items-center justify-between gap-3">
+    <p class="text-sm text-gray-400">
+      &copy; <%= new Date().getFullYear() %> HostKindle. All rights reserved.
+    </p>
+    <div class="flex items-center gap-4 text-sm">
+      <a href="/homes" class="text-gray-300 hover:text-primary transition-colors">Homes</a>
+      <a href="/favourites" class="text-gray-300 hover:text-primary transition-colors">Favourites</a>
+      <a href="/bookings" class="text-gray-300 hover:text-primary transition-colors">Bookings</a>
+    </div>
+  </div>
+</footer>

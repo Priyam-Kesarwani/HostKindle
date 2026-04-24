@@ -26,14 +26,21 @@
                 Near You
               </span>
             </h1>
-            <p class="text-xl md:text-2xl text-gray-200 max-w-3xl mx-auto leading-relaxed font-light">
-              Discover unique homes and immersive experiences in destinations you love
+            <p class="text-lg md:text-2xl max-w-4xl mx-auto leading-relaxed font-medium">
+              <span class="inline-block px-4 py-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-md shadow-lg shadow-primary/20">
+                <span class="bg-gradient-to-r from-pink-400 via-primary to-cyan-300 bg-clip-text text-transparent font-bold tracking-wide">
+                  Handpicked stays, unforgettable moments
+                </span>
+              </span>
+              <span class="block mt-4 text-gray-200/95 font-normal">
+                discover unique homes and immersive experiences in the destinations you love
+              </span>
             </p>
           </div>
 
           <!-- Filters Section -->
           <div class="bg-white/10 backdrop-blur-2xl border border-white/20 rounded-3xl p-8 shadow-2xl">
-            <form action="/homes" method="GET" class="space-y-8">
+            <form id="filter-form" action="/homes" method="GET" class="space-y-8">
               <!-- Clean Horizontal Filter Bar -->
               <div class="filter-horizontal-container flex flex-wrap items-center gap-6 justify-center">
                 <!-- Date Pickers Group -->
@@ -74,15 +81,25 @@
                       <i class="fas fa-map-pin mr-1 text-accent"></i>Location
                     </label>
                     <div class="flex items-center gap-2">
-                      <input 
-                        type="text" 
-                        name="location" 
+                      <input
+                        type="text"
+                        id="locationInput"
+                        name="location"
+                        value="<%= geoFilter && geoFilter.location ? geoFilter.location : '' %>"
                         placeholder="Enter location"
                         class="px-4 py-2.5 bg-neutral-800/60 border border-white/20 rounded-xl text-white text-sm placeholder-gray-400 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                       />
-                      <button 
-                        type="button" 
-                        id="use-my-location" 
+                      <button
+                        type="button"
+                        id="search-location-btn"
+                        class="px-3 py-2.5 bg-secondary/20 hover:bg-secondary/30 border border-secondary/30 text-secondary rounded-xl text-sm font-medium transition-all"
+                        title="Search location"
+                      >
+                        <i class="fas fa-magnifying-glass"></i>
+                      </button>
+                      <button
+                        type="button"
+                        data-use-location
                         class="px-3 py-2.5 bg-primary/20 hover:bg-primary/30 border border-primary/30 text-primary rounded-xl text-sm font-medium transition-all"
                       >
                         <i class="fas fa-location-crosshairs"></i>
@@ -121,7 +138,7 @@
                       <i class="fas fa-arrow-down-up mr-1 text-warning"></i>Sort
                     </label>
                     <div class="relative">
-                      <select 
+                      <select
                         id="sort-select"
                         name="sortBy"
                         class="px-4 py-2.5 bg-neutral-800/60 border border-white/20 rounded-xl text-white text-sm appearance-none cursor-pointer focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all pr-10"
@@ -150,16 +167,16 @@
                     Click on the map to set your location and filter homes within 1-15 km
                   </p>
                   <div class="flex items-center gap-2 flex-wrap">
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       id="clear-geo-filter" 
                       class="px-4 py-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 text-sm font-medium transition-all"
                     >
                       <i class="fas fa-times mr-2"></i>Clear Location
                     </button>
-                    <button 
-                      type="button" 
-                      id="use-my-location" 
+                    <button
+                      type="button"
+                      data-use-location
                       class="px-4 py-2 rounded-lg bg-primary/20 hover:bg-primary/30 border border-primary/30 text-primary text-sm font-medium transition-all"
                     >
                       <i class="fas fa-location-dot mr-2"></i>Use My Location
@@ -222,23 +239,9 @@
                 <% if (!isSearchResults) { %>
                   <div class="flex flex-col md:flex-row justify-between items-center mb-8 border-b border-white/5 pb-4">
                     <h2 class="text-2xl font-bold text-white mb-4 md:mb-0">Trending Stays</h2>
-
-                    <div class="flex items-center space-x-4">
-                      <label for="sort-select" class="text-sm text-gray-400">Sort by:</label>
-                      <div class="relative">
-                        <select id="sort-select"
-                          class="appearance-none bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-lg pl-4 pr-10 py-2 text-sm focus:outline-none focus:border-primary transition-colors cursor-pointer">
-                          <option value="price|asc" class="bg-neutral">Price: Low to High</option>
-                          <option value="price|desc" class="bg-neutral">Price: High to Low</option>
-                          <option value="rating|desc" class="bg-neutral">Top Rated</option>
-                          <option value="distance|asc" class="bg-neutral">Nearest distance</option>
-                        </select>
-                        <i
-                          class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
-                      </div>
-                    </div>
+                    <p class="text-sm text-gray-400">Use filters above to sort and refine results</p>
                   </div>
-                  <% } %>
+                <% } %>
 
                     <div id="homes-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                       <% registeredHomes.forEach((home, index)=> { %>
@@ -260,6 +263,9 @@
                             } else if (home.photo && typeof home.photo === 'string' && home.photo.trim() !== '') {
                             photos = [home.photo];
                             }
+                            const locality = home.address && home.address.locality ? home.address.locality : '';
+                            const city = home.address && home.address.city ? home.address.city : '';
+                            const displayLocation = [locality, city].filter(Boolean).join(', ') || home.location;
                             photos = photos.map(p => (/^https?:\/\//i.test(p) ? p : (p.startsWith('/') ? p : '/' + p)));
                             const mainPhoto = photos.length > 0 ? photos[0] : '/uploads/default.jpg';
                             %>
@@ -305,7 +311,7 @@
                               <div class="flex items-center text-gray-600 dark:text-gray-400 mb-3 text-sm">
                                 <i class="fas fa-map-marker-alt mr-2 text-primary/70"></i>
                                 <span class="truncate">
-                                  <%= home.location %>
+                                  <%= displayLocation %>
                                 </span>
                               </div>
                               <% if (geoFilter && geoFilter.latitude && geoFilter.longitude && typeof home.distanceKm === 'number') { %>
@@ -350,15 +356,20 @@
                           // Filter form elements
                           const latInput = document.getElementById('latitude');
                           const lngInput = document.getElementById('longitude');
+                          const filterForm = document.getElementById('filter-form');
+                          const locationInput = document.getElementById('locationInput');
+                          const searchLocationBtn = document.getElementById('search-location-btn');
                           const radiusInput = document.getElementById('radiusKm');
                           const radiusValue = document.getElementById('radiusValue');
-                          const useLocationBtn = document.getElementById('use-my-location');
+                          const useLocationBtns = Array.from(document.querySelectorAll('[data-use-location]'));
                           const clearGeoBtn = document.getElementById('clear-geo-filter');
                           const startDateInput = document.getElementById('startDate');
                           const endDateInput = document.getElementById('endDate');
                           const mapEl = document.getElementById('filter-map');
                           const sortSelect = document.getElementById('sort-select');
                           const homesGrid = document.getElementById('homes-grid');
+                          const defaultLat = 28.6139;
+                          const defaultLng = 77.209;
 
                           // Enhanced date picker functionality
                           const localToday = new Date(Date.now() - (new Date().getTimezoneOffset() * 60000)).toISOString().split('T')[0];
@@ -425,8 +436,8 @@
 
                           // Initialize map
                           if (mapEl && latInput && lngInput) {
-                            const initialLat = parseFloat(latInput.value) || 28.6139;
-                            const initialLng = parseFloat(lngInput.value) || 77.209;
+                            const initialLat = parseFloat(latInput.value) || defaultLat;
+                            const initialLng = parseFloat(lngInput.value) || defaultLng;
                             const map = L.map(mapEl).setView([initialLat, initialLng], 12);
                             
                             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -471,6 +482,22 @@
                               lngInput.value = lng;
                             };
 
+                            const geocodeLocation = async (locationText) => {
+                              const query = (locationText || '').trim();
+                              if (!query) return null;
+                              const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`;
+                              const response = await fetch(url, {
+                                headers: { Accept: 'application/json' },
+                              });
+                              if (!response.ok) throw new Error('Unable to search location right now.');
+                              const results = await response.json();
+                              if (!Array.isArray(results) || results.length === 0) return null;
+                              return {
+                                lat: Number.parseFloat(results[0].lat),
+                                lng: Number.parseFloat(results[0].lon),
+                              };
+                            };
+
                             // Set initial marker if coordinates exist
                             if (latInput.value && lngInput.value) {
                               updateMapMarker(initialLat, initialLng);
@@ -492,8 +519,8 @@
                             }
 
                             // Use current location
-                            if (useLocationBtn) {
-                              useLocationBtn.addEventListener('click', function (e) {
+                            useLocationBtns.forEach((btn) => {
+                              btn.addEventListener('click', function (e) {
                                 e.preventDefault();
                                 if (!navigator.geolocation) {
                                   alert('Geolocation is not supported by your browser');
@@ -512,6 +539,30 @@
                                   }
                                 );
                               });
+                            });
+
+                            if (searchLocationBtn && locationInput) {
+                              searchLocationBtn.addEventListener('click', async function (e) {
+                                e.preventDefault();
+                                try {
+                                  const point = await geocodeLocation(locationInput.value);
+                                  if (!point) {
+                                    alert('Location not found. Try a more specific place name.');
+                                    return;
+                                  }
+                                  map.setView([point.lat, point.lng], 13);
+                                  updateMapMarker(point.lat, point.lng);
+                                } catch (error) {
+                                  alert(error.message || 'Failed to search location.');
+                                }
+                              });
+                            }
+
+                            if (locationInput) {
+                              locationInput.addEventListener('input', function () {
+                                latInput.value = '';
+                                lngInput.value = '';
+                              });
                             }
 
                             // Clear location
@@ -528,7 +579,27 @@
                                   map.removeLayer(circle);
                                   circle = null;
                                 }
-                                map.setView([28.6139, 77.209], 12);
+                                map.setView([defaultLat, defaultLng], 12);
+                              });
+                            }
+
+                            if (filterForm && locationInput) {
+                              filterForm.addEventListener('submit', async function (event) {
+                                const hasTypedLocation = !!locationInput.value.trim();
+                                const hasCoordinates = !!latInput.value && !!lngInput.value;
+                                if (!hasTypedLocation || hasCoordinates) return;
+                                event.preventDefault();
+                                try {
+                                  const point = await geocodeLocation(locationInput.value);
+                                  if (!point) {
+                                    alert('Location not found. Please refine the location text.');
+                                    return;
+                                  }
+                                  updateMapMarker(point.lat, point.lng);
+                                  filterForm.submit();
+                                } catch (error) {
+                                  alert(error.message || 'Failed to search location.');
+                                }
                               });
                             }
                           }
@@ -562,6 +633,7 @@
                         })();
                       </script>
       </main>
+      <%- include('../partials/footer') %>
   </body>
 
   </html>

@@ -115,7 +115,7 @@ const attachDistances = (homes, latitudeInput, longitudeInput) => {
 
 exports.getIndex = async (req, res, next) => {
   console.log("Session Value: ", req.session);
-  const { startDate, endDate, latitude, longitude, radiusKm } = req.query;
+  const { startDate, endDate, latitude, longitude, radiusKm, location } = req.query;
   try {
     const homes = await getAvailableHomes({}, startDate, endDate, latitude, longitude, radiusKm);
     const registeredHomes = attachDistances(homes, latitude, longitude);
@@ -128,7 +128,7 @@ exports.getIndex = async (req, res, next) => {
       searchQuery: null,
       isSearchResults: false,
       filterDates: { startDate: startDate || "", endDate: endDate || "" },
-      geoFilter: { latitude: latitude || "", longitude: longitude || "", radiusKm: radiusKm || "5" },
+      geoFilter: { latitude: latitude || "", longitude: longitude || "", radiusKm: radiusKm || "5", location: location || "" },
     });
   } catch (error) {
     console.error("Error loading index homes:", error);
@@ -137,18 +137,20 @@ exports.getIndex = async (req, res, next) => {
 };
 
 exports.getHomes = async (req, res, next) => {
-  const { startDate, endDate, latitude, longitude, radiusKm } = req.query;
+  const { startDate, endDate, latitude, longitude, radiusKm, location } = req.query;
   try {
     const homes = await getAvailableHomes({}, startDate, endDate, latitude, longitude, radiusKm);
     const registeredHomes = attachDistances(homes, latitude, longitude);
-    res.render("store/home-list", {
+    res.render("store/index", {
       registeredHomes: registeredHomes,
-      pageTitle: "Homes List",
-      currentPage: "Home",
+      pageTitle: "HostKindle Home",
+      currentPage: "index",
       isLoggedIn: req.isLoggedIn, 
       user: req.session.user,
+      searchQuery: null,
+      isSearchResults: false,
       filterDates: { startDate: startDate || "", endDate: endDate || "" },
-      geoFilter: { latitude: latitude || "", longitude: longitude || "", radiusKm: radiusKm || "5" },
+      geoFilter: { latitude: latitude || "", longitude: longitude || "", radiusKm: radiusKm || "5", location: location || "" },
     });
   } catch (error) {
     console.error("Error loading homes:", error);
@@ -193,6 +195,56 @@ exports.getBookings = async (req, res, next) => {
       error: "Unable to load bookings right now.",
       success: null,
     });
+  }
+};
+
+exports.getUserProfile = async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const profileUser = await User.findById(userId)
+      .select("firstName lastName email userType favourites")
+      .populate("favourites");
+    if (!profileUser) {
+      return res.redirect("/homes");
+    }
+
+    const bookings = await Booking.find({ user: userId })
+      .sort({ createdAt: -1 })
+      .populate("home");
+
+    const now = new Date();
+    const normalizedBookings = bookings.map((booking) => {
+      if (booking.status === "confirmed" && booking.endDate && new Date(booking.endDate) < now) {
+        booking.status = "completed";
+      }
+      return booking;
+    });
+    const activeBookings = normalizedBookings.filter(
+      (booking) => booking.status === "confirmed" || booking.status === "pending"
+    );
+    const historyBookings = normalizedBookings.filter(
+      (booking) => booking.status === "cancelled" || booking.status === "completed"
+    );
+    const totalSpent = normalizedBookings.reduce(
+      (sum, booking) => sum + Number(booking.totalAmount || 0),
+      0
+    );
+
+    return res.render("store/user-profile", {
+      pageTitle: `${profileUser.firstName}'s Profile`,
+      currentPage: "user-profile",
+      isLoggedIn: req.isLoggedIn,
+      user: req.session.user,
+      profileUser,
+      bookings: normalizedBookings,
+      activeBookings,
+      historyBookings,
+      totalSpent,
+      favouriteHomes: profileUser.favourites || [],
+    });
+  } catch (error) {
+    console.error("Error loading user profile:", error);
+    return res.redirect("/homes");
   }
 };
 

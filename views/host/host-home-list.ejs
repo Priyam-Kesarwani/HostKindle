@@ -44,6 +44,9 @@
                     } else if (home.photo && typeof home.photo === 'string' && home.photo.trim() !== '') {
                     photos = [home.photo];
                     }
+                    const locality = home.address && home.address.locality ? home.address.locality : '';
+                    const city = home.address && home.address.city ? home.address.city : '';
+                    const displayLocation = [locality, city].filter(Boolean).join(', ') || home.location;
                     photos = photos.map(p => (/^https?:\/\//i.test(p) ? p : (p.startsWith('/') ? p : '/' + p)));
                     const mainPhoto = photos.length > 0 ? photos[0] : '/uploads/default.jpg';
                     %>
@@ -74,7 +77,7 @@
                         </h3>
                         <div class="flex justify-between items-end">
                           <p class="text-gray-300 text-xs"><i class="fas fa-map-marker-alt mr-1"></i>
-                            <%= home.location %>
+                            <%= displayLocation %>
                           </p>
                           <div
                             class="flex items-center text-yellow-500 text-xs font-bold bg-black/30 px-2 py-1 rounded-lg backdrop-blur-md">
