@@ -359,16 +359,19 @@
                   <% if (isLoggedIn && user) { %>
                     <p class="text-gray-300 mb-4">Share your experience by rating this property</p>
                     <form action="/homes/<%= home._id %>/rate" method="POST"
-                      class="inline-flex bg-neutral-800 rounded-full px-6 py-2 border border-white/10" id="rating-form">
+                      class="inline-flex flex-col gap-4 bg-neutral-800 rounded-2xl px-6 py-6 border border-white/10" id="rating-form">
                       <input type="hidden" name="value" id="rating-value"
                         value="<%= userRating ? userRating.value : '' %>">
-                      <div class="flex items-center gap-3">
+                      <div class="flex flex-wrap items-center gap-3 justify-center sm:justify-start">
                         <% for (let i=1; i <=5; i++) { %>
                           <button type="button"
                             class="rating-star text-3xl focus:outline-none transition-transform hover:scale-125 <%= userRating && userRating.value >= i ? 'text-yellow-400' : 'text-gray-600' %>"
                             data-value="<%= i %>" aria-label="Rate <%= i %> out of 5">★</button>
-                          <% } %>
+                        <% } %>
                       </div>
+                      <button type="submit" id="rating-submit"
+                        class="mt-2 inline-flex items-center justify-center bg-primary text-white px-6 py-3 rounded-xl font-semibold transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+                        <%= userRating && userRating.value ? '' : 'disabled' %>>Submit Rating</button>
                     </form>
                     <% } else { %>
                       <p class="text-gray-400 mb-2">Login to rate this home</p>
@@ -460,22 +463,17 @@
                               </p>
                             </div>
                           </div>
-                          <% if (isLoggedIn && user && user.userType==='guest' && String(user._id)===String(comment.user
-                            && comment.user._id)) { %>
-                            <div class="relative group">
-                              <button class="text-gray-500 hover:text-white"><i class="fas fa-ellipsis-v"></i></button>
-                              <div
-                                class="absolute right-0 mt-2 w-32 bg-gray-800 rounded-xl shadow-xl border border-gray-700 p-1 hidden group-hover:block z-10">
-                                <a href="/homes/<%= home._id %>/comments/<%= comment._id %>/edit"
-                                  class="block px-3 py-1.5 text-xs text-gray-300 hover:bg-white/10 rounded-lg mb-1">Edit</a>
-                                <form action="/homes/<%= home._id %>/comments/<%= comment._id %>/delete" method="POST"
-                                  onsubmit="return confirm('Delete this comment?');">
-                                  <button type="submit"
-                                    class="w-full text-left px-3 py-1.5 text-xs text-red-400 hover:bg-white/10 rounded-lg">Delete</button>
-                                </form>
-                              </div>
+                          <% if (isLoggedIn && user && user.userType==='guest' && comment.user && String(user._id)===String(comment.user._id)) { %>
+                            <div class="flex items-center gap-3">
+                              <a href="/homes/<%= home._id %>/comments/<%= comment._id %>/edit"
+                                class="text-xs text-gray-300 hover:text-white transition-colors border border-white/10 rounded-full px-3 py-1.5">Edit</a>
+                              <form action="/homes/<%= home._id %>/comments/<%= comment._id %>/delete" method="POST"
+                                onsubmit="return confirm('Delete this comment?');">
+                                <button type="submit"
+                                  class="text-xs text-red-400 hover:text-white hover:bg-white/10 transition-colors border border-red-500/20 rounded-full px-3 py-1.5">Delete</button>
+                              </form>
                             </div>
-                            <% } %>
+                          <% } %>
                         </div>
                         <p class="text-gray-300 text-sm leading-relaxed">
                           <%= comment.text %>
@@ -680,15 +678,37 @@
                 updateStars(parseInt(hiddenInput.value));
               }
 
+              const submitBtn = document.getElementById('rating-submit');
+
+              function updateSubmitState() {
+                if (!submitBtn || !hiddenInput) return;
+                submitBtn.disabled = !hiddenInput.value;
+              }
+
+              // Initialize from server value
+              if (hiddenInput && hiddenInput.value) {
+                updateStars(parseInt(hiddenInput.value));
+              }
+              updateSubmitState();
+
               stars.forEach(function (star) {
                 star.addEventListener('click', function () {
                   const value = parseInt(star.getAttribute('data-value'), 10);
                   if (isNaN(value)) return;
                   if (hiddenInput) hiddenInput.value = value;
                   updateStars(value);
-                  form.submit();
+                  updateSubmitState();
                 });
               });
+
+              if (form) {
+                form.addEventListener('submit', function (event) {
+                  if (!hiddenInput || !hiddenInput.value) {
+                    event.preventDefault();
+                    return;
+                  }
+                });
+              }
             }
           });
         </script>
