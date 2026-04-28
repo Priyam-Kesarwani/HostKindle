@@ -88,6 +88,79 @@ const homeSchema = mongoose.Schema({
     enum: ['Apartment', 'Independent house', 'Villa', 'Studio', 'PG / Shared Accommodation', 'Hostel'],
     default: 'Apartment',
   },
+  // Food and Amenities Features
+  foodIncluded: {
+    type: Boolean,
+    default: false,
+  },
+  foodType: {
+    type: String,
+    enum: ['None', 'Vegetarian', 'Non-Vegetarian', 'Both'],
+    default: 'None',
+  },
+  mealPlan: {
+    type: String,
+    enum: ['None', 'Breakfast Only', 'Breakfast & Dinner', 'All Meals'],
+    default: 'None',
+  },
+  // Other Amenities
+  wifi: {
+    type: Boolean,
+    default: false,
+  },
+  parking: {
+    type: Boolean,
+    default: false,
+  },
+  ac: {
+    type: Boolean,
+    default: false,
+  },
+  laundry: {
+    type: Boolean,
+    default: false,
+  },
+  housekeeping: {
+    type: Boolean,
+    default: false,
+  },
+  security: {
+    type: Boolean,
+    default: false,
+  },
+  powerBackup: {
+    type: Boolean,
+    default: false,
+  },
+  waterSupply: {
+    type: Boolean,
+    default: false,
+  },
+  // Additional parking fields
+  lift: {
+    type: Boolean,
+    default: false,
+  },
+  reservedParking: {
+    type: Boolean,
+    default: false,
+  },
+  coveredParking: {
+    type: Boolean,
+    default: false,
+  },
+  openParking: {
+    type: Boolean,
+    default: false,
+  },
+  twoWheelParking: {
+    type: Boolean,
+    default: false,
+  },
+  fourWheelParking: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 homeSchema.index({ coordinates: "2dsphere" });

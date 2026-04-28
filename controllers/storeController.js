@@ -635,6 +635,10 @@ exports.postRateHome = async (req, res, next) => {
   if (!req.isLoggedIn || !req.session.user) {
     return res.redirect(`/homes/${homeId}`);
   }
+  // Only guests are allowed to submit ratings.
+  if (!req.session.user.userType || req.session.user.userType !== "guest") {
+    return res.redirect(`/homes/${homeId}#rating`);
+  }
 
   const userId = req.session.user._id;
   const ratingValue = parseInt(value, 10);

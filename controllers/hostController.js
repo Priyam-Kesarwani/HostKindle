@@ -6,6 +6,7 @@ const { geocodeLocation } = require("../utils/geocode");
 
 // Helper to get a safe Cloudinary URL from an upload result
 const getSecureUrl = (result) => (result && (result.secure_url || result.url) ? (result.secure_url || result.url) : null);
+const parseBooleanField = (value) => value === true || value === "true" || value === 1 || value === "1" || value === "on";
 
 exports.getAddHome = (req, res, next) => {
   res.render("host/edit-home", {
@@ -75,7 +76,29 @@ exports.postAddHome = async (req, res, next) => {
     propertyAge,
     facingDirection,
     propertyType,
+    // Food and amenities fields
+    foodIncluded,
+    foodType,
+    mealPlan,
+    wifi,
+    parking,
+    ac,
+    laundry,
+    housekeeping,
+    security,
+    powerBackup,
+    waterSupply,
+    // Additional parking fields
+    lift,
+    reservedParking,
+    coveredParking,
+    openParking,
+    twoWheelParking,
+    fourWheelParking,
   } = req.body;
+  const processedFoodIncluded = parseBooleanField(foodIncluded);
+  const processedFoodType = processedFoodIncluded && ['None', 'Vegetarian', 'Non-Vegetarian', 'Both'].includes(foodType) ? foodType : 'None';
+  const processedMealPlan = processedFoodIncluded && ['None', 'Breakfast Only', 'Breakfast & Dinner', 'All Meals'].includes(mealPlan) ? mealPlan : 'None';
   console.log(houseName, price, location, description, furnished, bhk);
   console.log("Files:", req.files);
 
@@ -103,7 +126,13 @@ exports.postAddHome = async (req, res, next) => {
   if ((!description || description.trim() === "") && req.files && req.files[0]) {
     try {
       const base64 = req.files[0].buffer.toString('base64');
-      const aiDescription = await generateDescriptionFromImageData(base64, req.files[0].mimetype || 'image/jpeg');
+      const aiDescription = await generateDescriptionFromImageData(
+        base64, 
+        req.files[0].mimetype || 'image/jpeg',
+        processedFoodIncluded,
+        processedFoodType,
+        processedMealPlan
+      );
       if (aiDescription) {
         finalDescription = aiDescription;
       }
@@ -157,6 +186,25 @@ exports.postAddHome = async (req, res, next) => {
     facingDirection: ['East', 'West', 'North', 'South', 'North-East', 'North-West', 'South-East', 'South-West'].includes(facingDirection) ? facingDirection : 'East',
     propertyAge: ['1','2','3','4','5','6','7','8','9','10+'].includes(propertyAge) ? propertyAge : '1',
     propertyType: ['Apartment', 'Independent house', 'Villa', 'Studio', 'PG / Shared Accommodation', 'Hostel'].includes(propertyType) ? propertyType : 'Apartment',
+    // Food and amenities
+    foodIncluded: processedFoodIncluded,
+    foodType: processedFoodType,
+    mealPlan: processedMealPlan,
+    wifi: parseBooleanField(wifi),
+    parking: parseBooleanField(parking),
+    ac: parseBooleanField(ac),
+    laundry: parseBooleanField(laundry),
+    housekeeping: parseBooleanField(housekeeping),
+    security: parseBooleanField(security),
+    powerBackup: parseBooleanField(powerBackup),
+    waterSupply: parseBooleanField(waterSupply),
+    // Additional parking fields
+    lift: parseBooleanField(lift),
+    reservedParking: parseBooleanField(reservedParking),
+    coveredParking: parseBooleanField(coveredParking),
+    openParking: parseBooleanField(openParking),
+    twoWheelParking: parseBooleanField(twoWheelParking),
+    fourWheelParking: parseBooleanField(fourWheelParking),
     coordinates:
       !Number.isNaN(lat) && !Number.isNaN(lng)
         ? { type: "Point", coordinates: [lng, lat] }
@@ -182,7 +230,10 @@ function furnishingIsValid(val) {
 
 exports.postGenerateDescription = async (req, res, next) => {
   try {
-    let { image, mimeType, keywords, furnished, bhk, totalFloors, propertyAge, propertyType, facingDirection, homeId } = req.body;
+    let { image, mimeType, keywords, furnished, bhk, totalFloors, propertyAge, propertyType, facingDirection, homeId, foodIncluded, foodType, mealPlan } = req.body;
+
+    console.log('=== DEBUG postGenerateDescription ===');
+    console.log('foodIncluded:', foodIncluded, 'foodType:', foodType, 'mealPlan:', mealPlan);
 
     // keywords may be sent as array or CSV string
     let parsedKeywords = [];
@@ -204,7 +255,10 @@ exports.postGenerateDescription = async (req, res, next) => {
       totalFloors,
       propertyAge,
       propertyType,
-      facingDirection
+      facingDirection,
+      foodIncluded,
+      foodType,
+      mealPlan
     );
 
     if (!description) {
@@ -240,11 +294,36 @@ exports.postEditHome = async (req, res, next) => {
     propertyAge,
     facingDirection,
     propertyType,
+    // Food and amenities fields
+    foodIncluded,
+    foodType,
+    mealPlan,
+    wifi,
+    parking,
+    ac,
+    laundry,
+    housekeeping,
+    security,
+    powerBackup,
+    waterSupply,
+    // Additional parking fields
+    lift,
+    reservedParking,
+    coveredParking,
+    openParking,
+    twoWheelParking,
+    fourWheelParking,
   } = req.body;
   
   console.log("Edit Home - ID:", id);
   console.log("Edit Home - Body:", req.body);
   console.log("Edit Home - Files:", req.files);
+  console.log("Food Included:", foodIncluded);
+  console.log("Food Type:", foodType);
+  console.log("Meal Plan:", mealPlan);
+  console.log("WiFi:", wifi);
+  console.log("Parking:", parking);
+  console.log("AC:", ac);
   
   // Validate that id exists and is not empty
   if (!id || id.trim() === '') {
@@ -305,6 +384,43 @@ exports.postEditHome = async (req, res, next) => {
       home.propertyAge = ['1','2','3','4','5','6','7','8','9','10+'].includes(propertyAge) ? propertyAge : '1';
       home.facingDirection = ['East', 'West', 'North', 'South', 'North-East', 'North-West', 'South-East', 'South-West'].includes(facingDirection) ? facingDirection : 'East';
       home.propertyType = ['Apartment', 'Independent house', 'Villa', 'Studio', 'PG / Shared Accommodation', 'Hostel'].includes(propertyType) ? propertyType : 'Apartment';
+      
+      // Update food and amenities fields
+      const processedFoodIncluded = parseBooleanField(foodIncluded);
+      const processedFoodType = processedFoodIncluded && ['None', 'Vegetarian', 'Non-Vegetarian', 'Both'].includes(foodType) ? foodType : 'None';
+      const processedMealPlan = processedFoodIncluded && ['None', 'Breakfast Only', 'Breakfast & Dinner', 'All Meals'].includes(mealPlan) ? mealPlan : 'None';
+      
+      console.log("Processed Food Included:", processedFoodIncluded);
+      console.log("Processed Food Type:", processedFoodType);
+      console.log("Processed Meal Plan:", processedMealPlan);
+      
+      home.foodIncluded = processedFoodIncluded;
+      home.foodType = processedFoodType;
+      home.mealPlan = processedMealPlan;
+      home.wifi = parseBooleanField(wifi);
+      home.parking = parseBooleanField(parking);
+      home.ac = parseBooleanField(ac);
+      home.laundry = parseBooleanField(laundry);
+      home.housekeeping = parseBooleanField(housekeeping);
+      home.security = parseBooleanField(security);
+      home.powerBackup = parseBooleanField(powerBackup);
+      home.waterSupply = parseBooleanField(waterSupply);
+      // Additional parking fields
+      home.lift = parseBooleanField(lift);
+      home.reservedParking = parseBooleanField(reservedParking);
+      home.coveredParking = parseBooleanField(coveredParking);
+      home.openParking = parseBooleanField(openParking);
+      home.twoWheelParking = parseBooleanField(twoWheelParking);
+      home.fourWheelParking = parseBooleanField(fourWheelParking);
+      
+      console.log("Home object before save:", {
+        foodIncluded: home.foodIncluded,
+        foodType: home.foodType,
+        mealPlan: home.mealPlan,
+        wifi: home.wifi,
+        parking: home.parking,
+        ac: home.ac
+      });
 
       // Handle multiple photo uploads
       const removeList = Array.isArray(removePhotos)
@@ -335,11 +451,26 @@ exports.postEditHome = async (req, res, next) => {
       if (!Array.isArray(home.photos)) home.photos = [];
       home.photo = home.photos.length > 0 ? home.photos[0] : undefined;
 
-      await home.save();
-      console.log("Home updated ", home._id);
-      res.redirect("/host/host-home-list");
+      try {
+        await home.save();
+        console.log("Home updated successfully:", home._id);
+        console.log("Saved food data:", {
+          foodIncluded: home.foodIncluded,
+          foodType: home.foodType,
+          mealPlan: home.mealPlan,
+          wifi: home.wifi,
+          parking: home.parking,
+          ac: home.ac
+        });
+        res.redirect("/host/host-home-list");
+      } catch (saveErr) {
+        console.error("Database save error:", saveErr);
+        console.error("Validation errors:", saveErr.errors);
+        console.error("Home object being saved:", JSON.stringify(home.toObject(), null, 2));
+        res.status(500).send("Error saving home: " + saveErr.message);
+      }
   } catch (err) {
-    console.log("Error while editing home ", err);
+    console.error("Error while editing home:", err);
     res.redirect("/host/host-home-list");
   }
 };

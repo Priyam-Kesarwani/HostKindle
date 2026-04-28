@@ -5,6 +5,28 @@ const path = require('path');
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
 
+function toBoolean(value) {
+  return value === true || value === 'true' || value === 1 || value === '1' || value === 'on';
+}
+
+function buildFoodOptionsInstruction(foodIncluded, foodType, mealPlan) {
+  const isFoodIncluded = toBoolean(foodIncluded);
+  const normalizedFoodType = foodType && foodType !== 'None' ? String(foodType) : 'None';
+  const normalizedMealPlan = mealPlan && mealPlan !== 'None' ? String(mealPlan) : 'None';
+
+  if (isFoodIncluded) {
+    if (normalizedFoodType !== 'None' && normalizedMealPlan !== 'None') {
+      return `Food options: Included (${normalizedFoodType}), meal plan: ${normalizedMealPlan}. Include this in the description.`;
+    }
+    if (normalizedFoodType !== 'None') {
+      return `Food options: Included (${normalizedFoodType}). Include this in the description.`;
+    }
+    return `Food options: Included. Include this in the description.`;
+  }
+
+  return `Food options: Not included. Mention this clearly in the description.`;
+}
+
 /**
  * Summarize an array of comment texts using Gemini.
  * Returns a short summary string, or null if summarization is not available.
@@ -168,7 +190,7 @@ Do not mention that you are looking at a photo.
  * @param {string} mimeType
  * @returns {Promise<string|null>}
  */
-async function generateDescriptionFromImageData(base64Data, mimeType = 'image/jpeg') {
+async function generateDescriptionFromImageData(base64Data, mimeType = 'image/jpeg', foodIncluded = false, foodType = 'None', mealPlan = 'None') {
   try {
     if (!GEMINI_API_KEY) {
       console.warn('GEMINI_API_KEY is not set – skipping description generation.');
@@ -179,12 +201,16 @@ async function generateDescriptionFromImageData(base64Data, mimeType = 'image/jp
       return null;
     }
 
-    const prompt = `
-You are helping a host write a listing description for a rental home.
+    console.log('=== DEBUG generateDescriptionFromImageData ===');
+    console.log('foodIncluded:', foodIncluded, 'foodType:', foodType, 'mealPlan:', mealPlan);
+
+    let prompt = `You are helping a host write a listing description for a rental home.
 Look at the photo and write a short, attractive description (2–3 sentences)
 that describes the style of the home, atmosphere, and what guests might like.
-Do not mention that you are looking at a photo.
-`.trim();
+`;
+    prompt += `${buildFoodOptionsInstruction(foodIncluded, foodType, mealPlan)}\n`;
+    prompt += `Always include one explicit sentence about food options.
+Do not mention that you are looking at a photo.`;
 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 
@@ -233,18 +259,23 @@ Do not mention that you are looking at a photo.
   }
 }
 
-async function generateDescriptionFromContext(base64Data, mimeType, keywords = [], furnished, bhk, totalFloors, propertyAge, propertyType, facingDirection) {
+async function generateDescriptionFromContext(base64Data, mimeType, keywords = [], furnished, bhk, totalFloors, propertyAge, propertyType, facingDirection, foodIncluded = false, foodType = 'None', mealPlan = 'None') {
   try {
     if (!GEMINI_API_KEY) {
       console.warn('GEMINI_API_KEY is not set – skipping description generation.');
       return null;
     }
 
+    console.log('=== DEBUG generateDescriptionFromContext ===');
+    console.log('foodIncluded:', foodIncluded, 'type:', typeof foodIncluded);
+    console.log('foodType:', foodType, 'type:', typeof foodType);
+    console.log('mealPlan:', mealPlan, 'type:', typeof mealPlan);
+
     // Normalize keywords
     const kwArray = Array.isArray(keywords) ? keywords.filter(Boolean) : (typeof keywords === 'string' ? keywords.split(',').map(k => k.trim()).filter(Boolean) : []);
 
     // Build prompt with text context
-    let prompt = `\nYou are helping a host write a listing description for a rental home.\n`;
+    let prompt = `You are helping a host write a listing description for a rental home.\n`;
     if (furnished) {
       prompt += `Furnishing: ${String(furnished)}.\n`;
     }
@@ -263,10 +294,19 @@ async function generateDescriptionFromContext(base64Data, mimeType, keywords = [
     if (facingDirection) {
       prompt += `Facing direction: ${String(facingDirection)}.\n`;
     }
+    
+    prompt += `${buildFoodOptionsInstruction(foodIncluded, foodType, mealPlan)}\n`;
+    
     if (kwArray.length > 0) {
       prompt += `Keywords: ${kwArray.join(', ')}.\n`;
     }
-    prompt += `Write a short, attractive description (2–3 sentences) that highlights these features and what guests might like. Keep it friendly and concise. Do not mention that you are an AI.`.trim();
+    prompt += `Write a short, attractive description (2–3 sentences) that highlights these features and what guests might like.
+Always include one explicit sentence about food options.
+Keep it friendly and concise. Do not mention that you are an AI.`;
+
+    console.log('=== DEBUG Final Prompt ===');
+    console.log(prompt);
+    console.log('=== END Prompt ===');
 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 

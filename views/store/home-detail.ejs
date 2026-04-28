@@ -313,19 +313,87 @@
                 </div>
               </div>
 
-              <!-- Features -->
+              <!-- Food & Amenities -->
               <div class="mt-6 pt-6 border-t border-white/5">
-                <h3 class="text-lg font-semibold text-white mb-4">Features</h3>
-                <div class="flex flex-wrap gap-3">
-                  <% if (home.keywords && Array.isArray(home.keywords) && home.keywords.length > 0) { %>
-                    <% home.keywords.forEach(keyword => { %>
-                      <span class="inline-flex items-center px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 text-primary text-sm">
-                        <i class="fas fa-check mr-2"></i><%= keyword %>
-                      </span>
+                <h3 class="text-lg font-semibold text-white mb-4">Food & Amenities</h3>
+                
+                <!-- Food Options -->
+                <% if (home.foodIncluded) { %>
+                  <div class="mb-6">
+                    <div class="flex items-center gap-2 mb-3">
+                      <div class="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-400">
+                        <i class="fas fa-utensils text-sm"></i>
+                      </div>
+                      <h4 class="text-white font-medium">Food Available</h4>
+                    </div>
+                    
+                    <% if (home.foodType && home.foodType !== 'None') { %>
+                      <div class="flex items-center gap-2 text-gray-300 text-sm mb-2">
+                        <span class="inline-block px-2 py-1 rounded bg-white/5 text-xs uppercase tracking-wider">Type</span>
+                        <span><%= home.foodType %></span>
+                      </div>
+                    <% } %>
+                    
+                    <% if (home.mealPlan && home.mealPlan !== 'None') { %>
+                      <div class="flex items-center gap-2 text-gray-300 text-sm">
+                        <span class="inline-block px-2 py-1 rounded bg-white/5 text-xs uppercase tracking-wider">Meal Plan</span>
+                        <span><%= home.mealPlan %></span>
+                      </div>
+                    <% } %>
+                  </div>
+                <% } %>
+                
+                <!-- Amenities Grid -->
+                <div class="mb-6">
+                  <h4 class="text-white font-medium mb-3">Amenities</h4>
+                  <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    <% const amenities = [
+                      { key: 'wifi', label: 'Wi-Fi', icon: 'fa-wifi' },
+                      { key: 'ac', label: 'Air Conditioning', icon: 'fa-snowflake' },
+                      { key: 'laundry', label: 'Laundry', icon: 'fa-tshirt' },
+                      { key: 'housekeeping', label: 'Housekeeping', icon: 'fa-broom' },
+                      { key: 'security', label: 'Security', icon: 'fa-shield-alt' },
+                      { key: 'powerBackup', label: 'Power Backup', icon: 'fa-bolt' },
+                      { key: 'waterSupply', label: '24/7 Water', icon: 'fa-tint' },
+                      { key: 'lift', label: 'Lift', icon: 'fa-elevator' },
+                      { key: 'reservedParking', label: 'Reserved Parking', icon: 'fa-parking' },
+                      { key: 'coveredParking', label: 'Covered Parking', icon: 'fa-warehouse' },
+                      { key: 'openParking', label: 'Open Parking', icon: 'fa-square-parking' },
+                      { key: 'twoWheelParking', label: '2W Parking', icon: 'fa-motorcycle' },
+                      { key: 'fourWheelParking', label: '4W Parking', icon: 'fa-car-side' }
+                    ]; %>
+                    
+                    <% let hasAmenities = false; %>
+                    <% amenities.forEach(amenity => { %>
+                      <% if (home[amenity.key]) { %>
+                        <% hasAmenities = true; %>
+                        <div class="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-gray-300 text-sm">
+                          <i class="fas <%= amenity.icon %> text-primary"></i>
+                          <span><%= amenity.label %></span>
+                        </div>
+                      <% } %>
                     <% }); %>
-                  <% } else { %>
-                    <span class="text-gray-400 text-sm">No features specified</span>
-                  <% } %>
+                    
+                    <% if (!hasAmenities && !home.foodIncluded) { %>
+                      <span class="text-gray-400 text-sm col-span-full">No amenities specified</span>
+                    <% } %>
+                  </div>
+                </div>
+                
+                <!-- Property Features -->
+                <div>
+                  <h4 class="text-white font-medium mb-3">Property Features</h4>
+                  <div class="flex flex-wrap gap-3">
+                    <% if (home.keywords && Array.isArray(home.keywords) && home.keywords.length > 0) { %>
+                      <% home.keywords.forEach(keyword => { %>
+                        <span class="inline-flex items-center px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 text-primary text-sm">
+                          <i class="fas fa-check mr-2"></i><%= keyword %>
+                        </span>
+                      <% }); %>
+                    <% } else { %>
+                      <span class="text-gray-400 text-sm">No features specified</span>
+                    <% } %>
+                  </div>
                 </div>
               </div>
             </div>
@@ -356,7 +424,7 @@
                 <div class="h-px sm:h-20 w-full sm:w-px bg-white/10"></div>
 
                 <div class="flex-grow w-full text-center sm:text-left">
-                  <% if (isLoggedIn && user) { %>
+                  <% if (isLoggedIn && user && user.userType === 'guest') { %>
                     <p class="text-gray-300 mb-4">Share your experience by rating this property</p>
                     <form action="/homes/<%= home._id %>/rate" method="POST"
                       class="inline-flex flex-col gap-4 bg-neutral-800 rounded-2xl px-6 py-6 border border-white/10" id="rating-form">
@@ -373,6 +441,8 @@
                         class="mt-2 inline-flex items-center justify-center bg-primary text-white px-6 py-3 rounded-xl font-semibold transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
                         <%= userRating && userRating.value ? '' : 'disabled' %>>Submit Rating</button>
                     </form>
+                    <% } else if (isLoggedIn && user) { %>
+                      <p class="text-gray-400">Only guest accounts can rate homes.</p>
                     <% } else { %>
                       <p class="text-gray-400 mb-2">Login to rate this home</p>
                       <a href="/login" class="text-primary hover:text-white transition-colors font-semibold">Log in

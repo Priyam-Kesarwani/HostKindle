@@ -256,32 +256,95 @@
               </div>
             </div>
 
+            <!-- Food & Amenities -->
+            <div class="pt-6 space-y-6">
+              <h3 class="text-sm font-medium text-gray-300">Food & Amenities</h3>
+              
+              <!-- Food Options -->
+              <div class="space-y-4">
+                <div class="space-y-2">
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" name="foodIncluded" value="true" class="w-4 h-4 text-primary bg-neutral border-white/10 rounded focus:ring-primary focus:ring-2" 
+                      <%= editing && home.foodIncluded ? 'checked' : '' %>>
+                    <span class="text-sm text-gray-300">Food Included</span>
+                  </label>
+                </div>
+                
+                <div id="foodOptions" class="space-y-4 <%= editing && home.foodIncluded ? '' : 'hidden' %>">
+                  <div class="space-y-2">
+                    <label for="foodType" class="block text-sm font-medium text-gray-300">Food Type</label>
+                    <select id="foodType" name="foodType" class="w-full px-4 py-2.5 bg-neutral border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all">
+                      <% const foodTypes = ['None', 'Vegetarian', 'Non-Vegetarian', 'Both']; %>
+                      <% foodTypes.forEach(type => { %>
+                        <option value="<%= type %>" <%= editing && home.foodType === type ? 'selected' : (!editing && type === 'None' ? 'selected' : '') %>><%= type %></option>
+                      <% }); %>
+                    </select>
+                  </div>
+                  
+                  <div class="space-y-2">
+                    <label for="mealPlan" class="block text-sm font-medium text-gray-300">Meal Plan</label>
+                    <select id="mealPlan" name="mealPlan" class="w-full px-4 py-2.5 bg-neutral border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all">
+                      <% const mealPlans = ['None', 'Breakfast Only', 'Breakfast & Dinner', 'All Meals']; %>
+                      <% mealPlans.forEach(plan => { %>
+                        <option value="<%= plan %>" <%= editing && home.mealPlan === plan ? 'selected' : (!editing && plan === 'None' ? 'selected' : '') %>><%= plan %></option>
+                      <% }); %>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              
+            </div>
+
             <!-- Features -->
             <div class="pt-4 space-y-3">
               <h3 class="text-sm font-medium text-gray-300">Features</h3>
               <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                <% const keywordOptions=[ "Newly constructed" , "Well maintained" , "Spacious rooms"
-                  , "Separate living area" , "Modular kitchen" , "Attached bathroom" , "Balcony available"
-                  , "24×7 water supply" , "Power backup" , "Lift available" , "Reserved parking" , "Wi-Fi ready"
-                  , "Air conditioned" , "Near metro/bus" , "Close to market" , "Gated society" , "Security available"
-                  , "Peaceful locality" , "Family preferred" , "Bachelor allowed"
-                  , "LPG Gas" , "Pipeline Gas" , "Municipal Water" , "Borewell Water"
-                  , "Covered Parking" , "Open Parking" , "2W Parking" , "4W Parking"
-                  , "Pet Friendly" , "Electricity Included" ]; const selectedKeywords=(editing &&
+                <!-- Existing keyword options -->
+                <% const keywordOptions=[ "Newly constructed 🏗️" , "Well maintained ✨" , "Spacious rooms 🏠"
+                  , "Separate living area 🛋" , "Modular kitchen 🍳" , "Attached bathroom 🚽" , "Balcony available 🌅"
+                  , "Near metro/bus 🚇" , "Close to market 🛍" , "Gated society 🏘" , "Peaceful locality 🌳" , "Family preferred 👨‍👩‍👧‍👦" , "Bachelor allowed 👨"
+                  , "LPG Gas ⛽" , "Pipeline Gas 🚿" , "Municipal Water 💧" , "Borewell Water 🏊" , "Pet Friendly 🐕" , "Electricity Included ⚡" ]; const selectedKeywords=(editing &&
                   home && Array.isArray(home.keywords)) ? home.keywords : []; %>
-                  <% keywordOptions.forEach((k)=> { %>
-                    <label class="group cursor-pointer">
-                      <input type="checkbox" name="keywords" value="<%= k %>" class="peer sr-only"
-                        <%=selectedKeywords.includes(k) ? 'checked' : '' %>
-                      />
-                      <span
-                        class="flex items-center gap-2 px-3 py-2 rounded-lg bg-neutral border border-white/10 text-gray-400 text-xs peer-checked:bg-white/10 peer-checked:border-white/20 peer-checked:text-white transition-all group-hover:bg-white/5">
-                        <i
-                          class="fas fa-check text-[10px] opacity-0 peer-checked:opacity-100 transition-opacity text-primary"></i>
-                        <%= k %>
-                      </span>
-                    </label>
-                    <% }) %>
+                  
+                <!-- Amenities as features -->
+                <% const amenities = [
+                  { key: 'wifi', label: 'Wi-Fi Available 📶', icon: 'fa-wifi' },
+                  { key: 'parking', label: 'Parking Available 🅿️', icon: 'fa-parking' },
+                  { key: 'ac', label: 'Air Conditioned ❄️', icon: 'fa-snowflake' },
+                  { key: 'laundry', label: 'Laundry Service 👕', icon: 'fa-tshirt' },
+                  { key: 'housekeeping', label: 'Housekeeping 🧹', icon: 'fa-broom' },
+                  { key: 'security', label: 'Security Available 🛡️', icon: 'fa-shield-alt' },
+                  { key: 'powerBackup', label: 'Power Backup ⚡', icon: 'fa-bolt' },
+                  { key: 'waterSupply', label: '24×7 Water Supply 💧', icon: 'fa-tint' },
+                  { key: 'lift', label: 'Lift Available 🛗', icon: 'fa-elevator' },
+                  { key: 'reservedParking', label: 'Reserved Parking 🅿️', icon: 'fa-parking' },
+                  { key: 'coveredParking', label: 'Covered Parking 🏢', icon: 'fa-warehouse' },
+                  { key: 'openParking', label: 'Open Parking 🅿️', icon: 'fa-square-parking' },
+                  { key: 'twoWheelParking', label: '2W Parking 🏍️', icon: 'fa-motorcycle' },
+                  { key: 'fourWheelParking', label: '4W Parking 🚗', icon: 'fa-car-side' }
+                ]; %>
+                
+                <!-- Combined features list -->
+                <% const allFeatures = [...keywordOptions, ...amenities.map(a => a.label)]; %>
+                <% allFeatures.forEach((feature) => { %>
+                  <% const isKeyword = keywordOptions.includes(feature); %>
+                  <% const amenity = amenities.find(a => a.label === feature); %>
+                  <% const isChecked = isKeyword ? selectedKeywords.includes(feature) : (amenity && editing && home[amenity.key]); %>
+                  <% const featureKey = isKeyword ? 'keywords' : (amenity ? amenity.key : ''); %>
+                  
+                  <label class="group cursor-pointer">
+                    <input type="checkbox" name="<%= featureKey %>" value="<%= isKeyword ? feature : 'true' %>" class="peer sr-only"
+                      <%= isChecked ? 'checked' : '' %>>
+                    <span class="flex items-center gap-2 px-3 py-2 rounded-lg bg-neutral border border-white/10 text-gray-400 text-xs peer-checked:bg-white/10 peer-checked:border-white/20 peer-checked:text-white transition-all group-hover:bg-white/5">
+                      <% if (amenity) { %>
+                        <i class="fas <%= amenity.icon %>"></i>
+                      <% } else { %>
+                        <i class="fas fa-check text-[10px] opacity-0 peer-checked:opacity-100 transition-opacity text-primary"></i>
+                      <% } %>
+                      <%= feature %>
+                    </span>
+                  </label>
+                <% }); %>
               </div>
             </div>
 
@@ -524,6 +587,45 @@
             const propertyAge = propertyAgeEl ? propertyAgeEl.value : undefined;
             const propertyType = propertyTypeEl ? propertyTypeEl.value : undefined;
             const facingDirection = facingDirectionEl ? facingDirectionEl.value : undefined;
+            
+            // Food and amenities values
+            const foodIncludedEl = document.querySelector('input[name="foodIncluded"]');
+            const foodTypeEl = document.querySelector('#foodType');
+            const mealPlanEl = document.querySelector('#mealPlan');
+            
+            // Amenities from merged features section
+            const wifiEl = document.querySelector('input[name="wifi"]:checked');
+            const parkingEl = document.querySelector('input[name="parking"]:checked');
+            const acEl = document.querySelector('input[name="ac"]:checked');
+            const laundryEl = document.querySelector('input[name="laundry"]:checked');
+            const housekeepingEl = document.querySelector('input[name="housekeeping"]:checked');
+            const securityEl = document.querySelector('input[name="security"]:checked');
+            const powerBackupEl = document.querySelector('input[name="powerBackup"]:checked');
+            const waterSupplyEl = document.querySelector('input[name="waterSupply"]:checked');
+            const liftEl = document.querySelector('input[name="lift"]:checked');
+            const reservedParkingEl = document.querySelector('input[name="reservedParking"]:checked');
+            const coveredParkingEl = document.querySelector('input[name="coveredParking"]:checked');
+            const openParkingEl = document.querySelector('input[name="openParking"]:checked');
+            const twoWheelParkingEl = document.querySelector('input[name="twoWheelParking"]:checked');
+            const fourWheelParkingEl = document.querySelector('input[name="fourWheelParking"]:checked');
+            
+            const foodIncluded = foodIncludedEl ? foodIncludedEl.checked : false;
+            const foodType = foodTypeEl ? foodTypeEl.value : 'None';
+            const mealPlan = mealPlanEl ? mealPlanEl.value : 'None';
+            const wifi = wifiEl ? true : false;
+            const parking = parkingEl ? true : false;
+            const ac = acEl ? true : false;
+            const laundry = laundryEl ? true : false;
+            const housekeeping = housekeepingEl ? true : false;
+            const security = securityEl ? true : false;
+            const powerBackup = powerBackupEl ? true : false;
+            const waterSupply = waterSupplyEl ? true : false;
+            const lift = liftEl ? true : false;
+            const reservedParking = reservedParkingEl ? true : false;
+            const coveredParking = coveredParkingEl ? true : false;
+            const openParking = openParkingEl ? true : false;
+            const twoWheelParking = twoWheelParkingEl ? true : false;
+            const fourWheelParking = fourWheelParkingEl ? true : false;
 
             // Prefer using selected file if provided
             const files = photosInput ? photosInput.files : null;
@@ -536,7 +638,7 @@
               fetch('/host/generate-description', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ image: base64, mimeType, keywords, furnished, bhk, totalFloors, propertyAge, propertyType, facingDirection })
+                body: JSON.stringify({ image: base64, mimeType, keywords, furnished, bhk, totalFloors, propertyAge, propertyType, facingDirection, foodIncluded, foodType, mealPlan, wifi, parking, ac, laundry, housekeeping, security, powerBackup, waterSupply, lift, reservedParking, coveredParking, openParking, twoWheelParking, fourWheelParking })
               })
                 .then(res => res.json())
                 .then(data => {
@@ -589,6 +691,23 @@
               sendRequest(undefined, undefined);
             }
           });
+          
+          // Food included checkbox toggle
+          const foodIncludedCheckbox = document.querySelector('input[name="foodIncluded"]');
+          const foodOptionsDiv = document.getElementById('foodOptions');
+          
+          if (foodIncludedCheckbox && foodOptionsDiv) {
+            foodIncludedCheckbox.addEventListener('change', function() {
+              if (this.checked) {
+                foodOptionsDiv.classList.remove('hidden');
+              } else {
+                foodOptionsDiv.classList.add('hidden');
+                // Reset food options when unchecked
+                document.getElementById('foodType').value = 'None';
+                document.getElementById('mealPlan').value = 'None';
+              }
+            });
+          }
         })();
       </script>
   </body>
