@@ -6,22 +6,42 @@
 
 ## Overview
 
-**HostKindle** is a full-stack property hosting platform built with **Node.js**, **Express.js**, **MongoDB**, and **EJS**. It enables users to list, manage, and book properties with dedicated **Guest** and **Host** roles, offering a seamless, AI-enhanced hosting experience.
+HostKindle is built using **Node.js, Express.js, MongoDB, and EJS**, providing a seamless experience for both **Guests** and **Hosts**. The platform stands out with its **AI-driven description generation** and **review summarization**, making property listing and selection more efficient.
+
+---
 
 ---
 
 ## Features
 
-- 📝 User Authentication & Session Management  
-- 👥 Dual Roles: **Guest** & **Host**  
-- 🏠 Property Listing, Search, Sorting & Management  
-- 📤 Upload & Manage Property Content with File Storage  
-- ✏️ Edit & Delete Listings  
-- ❤️ Add Properties to Favourites  
-- 🤖 AI-Based Feedback & Review Summarization (Improved content quality by **70%**)  
-- 🧠 AI-Driven Property Summary Generation using Keywords & Images  
-- 🌐 Responsive UI with **EJS** & **Tailwind CSS**  
-- ☁️ Deployed on **Render**
+### 🔐 Authentication & Roles
+- User Authentication & Session Management  
+- Dual Roles: **Guest** & **Host**
+
+### 🏠 Property Management
+- Add, Edit, Delete Property Listings  
+- Search, Sort & Filter Listings  
+- Add to Favourites ❤️  
+- Upload & Manage Property Images  
+
+### 🗺️ Smart Discovery
+- **Map-Based Search with Radius Filtering**  
+- **Automatic Location Detection** for nearby properties  
+
+### 🤖 AI-Powered Features (Key Differentiator)
+- **AI Description Generator**  
+  → Automatically creates property descriptions based on selected features  
+
+- **AI Review Summarizer**  
+  → Converts multiple reviews into concise insights  
+
+### 🏢 Extended Support
+- Supports **Homes, PGs, and Hostels**  
+- Add **Food Preferences & Meal Options** (Full / Partial Meals)  
+
+### 🎨 UI & Experience
+- Responsive UI using **EJS + Tailwind CSS**  
+- Real-time filtering and smooth UX  
   
 ---
 
