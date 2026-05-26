@@ -13,13 +13,17 @@
         </div>
 
         <div class="container mx-auto px-4 relative z-10 text-center">
+          <% const area = home.address && home.address.locality ? String(home.address.locality).trim() : ''; %>
+          <% const city = home.address && home.address.city ? String(home.address.city).trim() : ''; %>
+          <% const state = home.address && home.address.state ? String(home.address.state).trim() : ''; %>
+          <% const detailedLocation = [area, city, state].filter(Boolean).join(', ') || home.location; %>
           <h1 class="text-4xl md:text-6xl font-sans font-bold text-white mb-4 animate-fade-in tracking-tight">
             <%= home.houseName %>
           </h1>
           <div class="flex items-center justify-center gap-6 text-gray-400 animate-slide-up"
             style="animation-delay: 200ms;">
             <span class="flex items-center"><i class="fas fa-map-marker-alt text-primary mr-2"></i>
-              <%= home.location %>
+              <%= detailedLocation %>
             </span>
             <span class="flex items-center"><i class="fas fa-star text-yellow-500 mr-2"></i>
               <%= (home.rating || 0).toFixed(1) %> (<%= home.ratingCount || 0 %>)
